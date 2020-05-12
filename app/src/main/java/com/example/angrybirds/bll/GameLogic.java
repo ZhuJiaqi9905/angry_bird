@@ -1,7 +1,10 @@
-package com.example.angrybirds;
+package com.example.angrybirds.bll;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
+
+import com.example.angrybirds.R;
+import com.example.angrybirds.ui.UiInterface;
 
 /**
  * 一个简单的游戏逻辑处理
@@ -66,9 +69,12 @@ public class GameLogic implements ShotListener, ClickListener, Runnable,
     public void run() {
         // 朝一个方向移动，超出屏幕时游戏结束
         while(flag) {
+            int fps = context.getResources().getInteger(R.integer.fps);
+            long startTime = System.currentTimeMillis();
+
             if(status == GAME_FLYING){
-                bird.x += dx * 0.05;
-                bird.y += dy * 0.05;
+                bird.x += dx * 0.2;
+                bird.y += dy * 0.2;
                 if(bird.x > ui.getScreenW() || bird.x < 0){
                     ui.gameOver(true);
                     status = GAME_OVER;
@@ -78,9 +84,13 @@ public class GameLogic implements ShotListener, ClickListener, Runnable,
                     status = GAME_OVER;
                 }
             }
+
+            long endTime = System.currentTimeMillis();
             try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
+                if (endTime - startTime < 1000 / fps){
+                    Thread.sleep(1000 / fps - (endTime - startTime));
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

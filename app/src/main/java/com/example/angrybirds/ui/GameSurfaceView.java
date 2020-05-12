@@ -1,10 +1,9 @@
-package com.example.angrybirds;
+package com.example.angrybirds.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -13,6 +12,15 @@ import android.view.SurfaceView;
 import android.view.View;
 
 import androidx.core.content.res.ResourcesCompat;
+
+import com.example.angrybirds.R;
+import com.example.angrybirds.bll.Body;
+import com.example.angrybirds.bll.ClickListener;
+import com.example.angrybirds.bll.CreateListener;
+import com.example.angrybirds.bll.DestroyListener;
+import com.example.angrybirds.bll.ResumeListener;
+import com.example.angrybirds.bll.ShotListener;
+import com.example.angrybirds.music.BGM;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -67,13 +75,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             if(canvas != null) {
                 // 绘制游戏内容
                 Paint paint = new Paint();
-                paint.setColor(Color.parseColor("#55280f"));
-                paint.setStrokeWidth(30);
+                paint.setColor(getResources().getColor(R.color.slingshot));
+                paint.setStrokeWidth(getResources().getDimensionPixelSize(R.dimen.slingshot_width));
                 paint.setStrokeCap(Paint.Cap.ROUND);
                 canvas.drawBitmap(bgBmp, 0, 0, paint);
                 for(Body body: bodyList){
                     if(body == null) continue;
                     if(body == shotBody) { // 弹弓上的物品
+                        // 按照比例计算弹弓位置
                         canvas.drawLine(screenW * 410f / 2560f, screenH * 940f / 1440f,
                                 body.x - body.getWidth()/4, body.y, paint);
                         body.draw(canvas, paint);
@@ -85,15 +94,17 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
                 // 绘制游戏结束状态
                 paint = new Paint();
-                paint.setTextSize(Math.min(screenH / 3, screenW / 3));
+                paint.setTextSize(getResources().getDimensionPixelSize(R.dimen.status_font_size));
                 paint.setTextAlign(Paint.Align.CENTER);
                 paint.setTypeface(ResourcesCompat.getFont(getContext(), R.font.angrybirds));
-                paint.setColor(Color.parseColor("#aa6d8346"));
+                paint.setColor(getResources().getColor(R.color.gameOver));
                 if(status == GAME_WIN){
-                    canvas.drawText("WIN", screenW / 2, screenH * 0.6f, paint);
+                    canvas.drawText(getResources().getString(R.string.Win),
+                            screenW / 2f, screenH * 0.6f, paint);
                 }
                 else if(status == GAME_LOSS){
-                    canvas.drawText("LOSS", screenW / 2, screenH * 0.6f, paint);
+                    canvas.drawText(getResources().getString(R.string.Loss),
+                            screenW / 2f, screenH * 0.6f, paint);
                 }
             }
         } catch (Exception e) {
@@ -109,7 +120,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public int getScreenW() {
         // 等待画布被创建（否则screenW为0）
         while(status == GAME_NOT_READY){
-            try { Thread.sleep(100); } catch (Exception e) { }
+            try { Thread.sleep(100); } catch (Exception e) { e.printStackTrace();}
         }
         return screenW;
     }
@@ -118,7 +129,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public int getScreenH() {
         // 等待画布被创建（否则screenH为0）
         while(status == GAME_NOT_READY){
-            try { Thread.sleep(100); } catch (Exception e) { }
+            try { Thread.sleep(100); } catch (Exception e) { e.printStackTrace();}
         }
         return screenH;
     }
@@ -126,7 +137,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public int getGroundY() {
         while(status == GAME_NOT_READY){
-            try { Thread.sleep(100); } catch (Exception e) { }
+            try { Thread.sleep(100); } catch (Exception e) { e.printStackTrace(); }
         }
         return (int) (screenH * groundHScale);
     }
@@ -134,7 +145,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void addBody(Body body) {
         while(status == GAME_NOT_READY){
-            try { Thread.sleep(100); } catch (Exception e) { }
+            try { Thread.sleep(100); } catch (Exception e) { e.printStackTrace();}
         }
         bodyList.add(body);
     }
@@ -160,8 +171,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public void putOnSlingshot(Body body, ShotListener listener) {
         addBody(body);
         shotBody = body;
-        body.x = (float) (screenW * shotWScale);
-        body.y = (float) (screenH * shotHScale);
+        body.x = screenW * shotWScale;
+        body.y = screenH * shotHScale;
         shotListener = listener;
     }
 
@@ -222,9 +233,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void run() {
         while (flag) {
+            int fps = getResources().getInteger(R.integer.fps);
+            long startTime = System.currentTimeMillis();
             myDraw();
+            long endTime = System.currentTimeMillis();
             try {
-                Thread.sleep(50);
+                if (endTime - startTime < 1000 / fps){
+                    Thread.sleep(1000 / fps - (endTime - startTime));
+                }
             } catch (Exception e) {
                e.printStackTrace();
             }
@@ -235,8 +251,11 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     public boolean onTouch(View v, MotionEvent event) {
         float x = event.getX(), y = event.getY();
         if(event.getAction() == MotionEvent.ACTION_DOWN){
-            if(shotBody != null && shotBody.pointIn(x, y))
+            // 开始拖动小鸟
+            if(shotBody != null && shotBody.pointIn(x, y)) {
                 focusOnShot = true;
+                BGM.playSlingshot();
+            }
         }
         if(event.getAction() == MotionEvent.ACTION_MOVE){
             if(focusOnShot && shotBody != null){
@@ -253,7 +272,10 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             }
         }
         if(event.getAction() == MotionEvent.ACTION_UP){
+            // 发射小鸟
             if(focusOnShot && shotBody != null){
+                BGM.playShot();
+                BGM.stopSlingshot();
                 if(shotListener != null){
                     shotListener.shotPerformed(shotBody,
                             screenW * shotWScale, screenH * shotHScale);

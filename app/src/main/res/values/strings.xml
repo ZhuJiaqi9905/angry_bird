@@ -2,4 +2,7 @@
     <string name="app_name">AngryBirds</string>
     <string name="Angry_Birds">Angry Birds</string>
     <string name="Select_Level">Select Level</string>
+    <string name="Level">Level-%1$d</string>
+    <string name="Loss">Loss</string>
+    <string name="Win">Win</string>
 </resources>

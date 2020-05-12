@@ -8,10 +8,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="@dimen/select_top"
+        android:layout_marginBottom="@dimen/select_bottom"
         android:id="@+id/title"
-        android:textSize="30pt"
+        android:textSize="@dimen/select_font_size"
         android:fontFamily="@font/angrybirds"
         android:textColor="@color/white"
         android:text="@string/Select_Level"/>
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/btnBack"
         android:layout_alignParentRight="true"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/button_gap"
         android:background="@drawable/btn_back"
         android:layout_alignParentEnd="true" />
 
@@ -30,7 +30,7 @@
         android:id="@+id/btnMusic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/button_gap"
         android:layout_toLeftOf="@id/btnBack"
         android:background="@drawable/btn_music"
         android:layout_toStartOf="@id/btnBack" />
@@ -39,8 +39,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/title"
-        android:layout_marginRight="50dp"
-        android:layout_marginLeft="50dp"
+        android:layout_marginRight="@dimen/levels_side"
+        android:layout_marginLeft="@dimen/levels_side"
         android:fillViewport="true">
 
         <LinearLayout

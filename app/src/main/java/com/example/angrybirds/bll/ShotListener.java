@@ -1,4 +1,6 @@
-package com.example.angrybirds;
+package com.example.angrybirds.bll;
+
+import com.example.angrybirds.bll.Body;
 
 public interface ShotListener {
     /**

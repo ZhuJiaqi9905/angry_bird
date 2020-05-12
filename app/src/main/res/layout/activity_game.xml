@@ -7,19 +7,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/level_top"
         android:id="@+id/level"
-        android:textSize="20pt"
+        android:textSize="@dimen/level_font_size"
         android:fontFamily="@font/angrybirds"
         android:textColor="@color/white"
-        android:text="Level"/>
+        android:text="@string/Level"/>
 
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnBack"
         android:layout_alignParentRight="true"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/button_gap"
         android:background="@drawable/btn_back"
         android:layout_alignParentEnd="true" />
 
@@ -28,7 +28,7 @@
         android:id="@+id/btnMusic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/button_gap"
         android:layout_toLeftOf="@id/btnBack"
         android:background="@drawable/btn_music"
         android:layout_toStartOf="@id/btnBack" />
@@ -37,7 +37,7 @@
         android:id="@+id/btnResume"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/button_gap"
         android:layout_toLeftOf="@id/btnMusic"
         android:background="@drawable/btn_resume"
         android:layout_toStartOf="@id/btnMusic" />

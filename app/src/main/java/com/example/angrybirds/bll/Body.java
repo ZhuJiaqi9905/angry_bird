@@ -1,4 +1,4 @@
-package com.example.angrybirds;
+package com.example.angrybirds.bll;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

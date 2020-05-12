@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/cover"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
 
     <ImageButton
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="@dimen/start_bottom"
         android:background="@drawable/btn_start" />
 
     <ImageButton
@@ -24,7 +24,7 @@
         android:id="@+id/btnExit"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/button_gap"
         android:background="@drawable/btn_exit"
         android:layout_alignParentEnd="true" />
 
@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/button_gap"
         android:layout_toLeftOf="@id/btnExit"
         android:background="@drawable/btn_music"
         android:layout_toStartOf="@id/btnExit" />

@@ -1,4 +1,4 @@
-package com.example.angrybirds;
+package com.example.angrybirds.bll;
 
 public interface ClickListener {
     /**

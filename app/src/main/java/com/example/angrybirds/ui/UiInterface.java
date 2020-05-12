@@ -1,4 +1,11 @@
-package com.example.angrybirds;
+package com.example.angrybirds.ui;
+
+import com.example.angrybirds.bll.Body;
+import com.example.angrybirds.bll.ClickListener;
+import com.example.angrybirds.bll.CreateListener;
+import com.example.angrybirds.bll.DestroyListener;
+import com.example.angrybirds.bll.ResumeListener;
+import com.example.angrybirds.bll.ShotListener;
 
 public interface UiInterface {
     /**
@@ -53,19 +60,16 @@ public interface UiInterface {
 
     /**
      * 当玩家返回或按下HOME键时调用listener
-     * @param listener
      */
     void setDestroyListener(DestroyListener listener);
 
     /**
      * 当玩家按下重新开始游戏按钮时会调用listener
-     * @param listener
      */
     void setResumeListener(ResumeListener listener);
 
     /**
      * 当玩家开始游戏或者按下HOME键又返回游戏时会调用listener
-     * @param listener
      */
     void setCreateListener(CreateListener listener);
 }
