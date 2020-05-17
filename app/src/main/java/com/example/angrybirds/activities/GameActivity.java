@@ -32,15 +32,13 @@ public class GameActivity extends Activity {
     @SuppressLint("ClickableViewAccessibility")
     private void setButtons() {
         // 返回
-        btnBack = ViewUtils.setButton(this, R.id.btnBack, R.drawable.btn_back,
-                R.drawable.btn_back_active, this::finish);
+        btnBack = ViewUtils.setButton(this, R.id.btnBack, this::finish);
 
         // 开启/关闭音乐
         btnMusic = ViewUtils.setBtnMusic(this, R.id.btnMusic);
 
         // 重新开始
-        btnResume = ViewUtils.setButton(this, R.id.btnResume, R.drawable.btn_resume,
-                R.drawable.btn_resume_active, ()-> gameView.resume());
+        btnResume = ViewUtils.setButton(this, R.id.btnResume, gameView::resume);
     }
 
     @Override
@@ -49,8 +47,10 @@ public class GameActivity extends Activity {
         // 创建布局并放入按键、标题和gameSurfaceView
         FrameLayout layout = new FrameLayout(this);
         setContentView(layout);
+
         gameView = new GameSurfaceView(this);
         layout.addView(gameView);
+
         layout.addView(LayoutInflater.from(this).inflate(R.layout.activity_game, null));
         setButtons();
 
@@ -69,9 +69,9 @@ public class GameActivity extends Activity {
         super.onStart();
         BGM.start();
         if(BGM.getStatus() == BGM.PLAYER_PLAY)
-            btnMusic.setBackground(getResources().getDrawable(R.drawable.btn_music));
+            btnMusic.setBackgroundResource(R.drawable.btn_music);
         else
-            btnMusic.setBackground(getResources().getDrawable(R.drawable.btn_nomusic));
+            btnMusic.setBackgroundResource(R.drawable.btn_nomusic);
     }
 
     @Override

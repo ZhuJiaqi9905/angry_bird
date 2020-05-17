@@ -24,12 +24,10 @@ public class MainActivity extends AppCompatActivity {
     private void setButtons() {
         // 开始游戏按钮
         final Intent intent = new Intent(MainActivity.this, SelectLevelActivity.class);
-        btnStart = ViewUtils.setButton(this, R.id.btnStart, R.drawable.btn_start,
-                R.drawable.btn_start_active, ()-> startActivity(intent));
+        btnStart = ViewUtils.setButton(this, R.id.btnStart, ()-> startActivity(intent));
 
         // 退出
-        btnExit = ViewUtils.setButton(this, R.id.btnExit, R.drawable.btn_exit,
-                R.drawable.btn_exit_active, this::finish);
+        btnExit = ViewUtils.setButton(this, R.id.btnExit, this::finish);
 
         // 开启/关闭音乐按钮
         btnMusic = ViewUtils.setBtnMusic(this, R.id.btnMusic);
@@ -44,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         try{
             BGM.init(this, R.raw.bgm); // 背景音乐
         } catch (Exception e) { e.printStackTrace(); }
+
         setButtons(); // 按键
     }
 
@@ -52,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         BGM.start();
         if(BGM.getStatus() == BGM.PLAYER_PLAY)
-            btnMusic.setBackground(getResources().getDrawable(R.drawable.btn_music));
+            btnMusic.setBackgroundResource(R.drawable.btn_music);
         else
-            btnMusic.setBackground(getResources().getDrawable(R.drawable.btn_nomusic));
+            btnMusic.setBackgroundResource(R.drawable.btn_nomusic);
     }
 
     @Override

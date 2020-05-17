@@ -21,6 +21,7 @@ public class SelectLevelActivity extends Activity {
      * 关卡总数
      */
     private int levels;
+
     private ImageButton btnMusic, btnBack;
     private ImageButton[] btnLevel;
 
@@ -30,8 +31,7 @@ public class SelectLevelActivity extends Activity {
     @SuppressLint("ClickableViewAccessibility")
     private void setButtons() {
         // 返回
-        btnBack = ViewUtils.setButton(this, R.id.btnBack, R.drawable.btn_back,
-                R.drawable.btn_back_active, this::finish);
+        btnBack = ViewUtils.setButton(this, R.id.btnBack, this::finish);
 
         // 开启/关闭音乐按钮
         btnMusic = ViewUtils.setBtnMusic(this, R.id.btnMusic);
@@ -58,9 +58,9 @@ public class SelectLevelActivity extends Activity {
         super.onStart();
         BGM.start();
         if(BGM.getStatus() == BGM.PLAYER_PLAY)
-            btnMusic.setBackground(getResources().getDrawable(R.drawable.btn_music));
+            btnMusic.setBackgroundResource(R.drawable.btn_music);
         else
-            btnMusic.setBackground(getResources().getDrawable(R.drawable.btn_nomusic));
+            btnMusic.setBackgroundResource(R.drawable.btn_nomusic);
     }
 
     @Override

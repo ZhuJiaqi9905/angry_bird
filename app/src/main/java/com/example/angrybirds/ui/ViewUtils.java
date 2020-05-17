@@ -21,6 +21,10 @@ import java.lang.reflect.Field;
  */
 @SuppressLint("ClickableViewAccessibility")
 public class ViewUtils {
+    /**
+     * 按钮激活时的缩小比例
+     */
+    private static final float ACTIVE_SCALE = 0.85f;
 
     /**
      * 设置View margin 单位 px
@@ -36,26 +40,27 @@ public class ViewUtils {
      * 设置按钮
      * @param activity 按键所在的activity
      * @param id 按钮组件resource id
-     * @param imgId 按钮图片 resource id
-     * @param activeImgId 按钮按下图片 resource id
      * @param fun 点击后的要做的事
      * @return 设置完成的 btn
      */
-    public static ImageButton setButton(final Activity activity, final int id, final int imgId,
-                                 final int activeImgId, final Runnable fun){
-        final ImageButton btn = activity.findViewById(id);
-        btn.setBackgroundResource(imgId);
+    public static ImageButton setButton(final Activity activity, final int id, final Runnable fun){
+        if (activity == null) return null;
+
+        ImageButton btn = activity.findViewById(id);
         btn.setOnTouchListener((v, event) -> {
             // 按下
             if(event.getAction() == MotionEvent.ACTION_DOWN){
-                btn.setBackgroundResource(activeImgId);
+                v.setScaleX(ACTIVE_SCALE);
+                v.setScaleY(ACTIVE_SCALE);
                 BGM.playTouchDown();
             }
             // 抬起
             else if(event.getAction() == MotionEvent.ACTION_UP) {
-                btn.setBackgroundResource(imgId);
+                v.setScaleX(1f);
+                v.setScaleY(1f);
                 BGM.playTouchUp();
-                fun.run();
+                if(fun != null)
+                    fun.run();
             }
             return true;
         });
@@ -69,26 +74,27 @@ public class ViewUtils {
      * @param id 按钮组件id
      */
     public static ImageButton setBtnMusic(final Activity activity, final int id) {
-        final ImageButton btnMusic = activity.findViewById(id);
-        btnMusic.setBackgroundResource(R.drawable.btn_music);
+        if (activity == null) return null;
 
+        ImageButton btnMusic = activity.findViewById(id);
         btnMusic.setOnTouchListener((v, event) -> {
             // 按下
             if(event.getAction() == MotionEvent.ACTION_DOWN){
-                if(BGM.getStatus() == BGM.PLAYER_PLAY)
-                    btnMusic.setBackgroundResource(R.drawable.btn_music_active);
-                else
-                    btnMusic.setBackgroundResource(R.drawable.btn_nomusic_active);
+                v.setScaleX(ACTIVE_SCALE);
+                v.setScaleY(ACTIVE_SCALE);
                 BGM.playTouchDown();
             }
             // 抬起
             else if(event.getAction() == MotionEvent.ACTION_UP) {
                 BGM.playTouchUp();
-                if(BGM.toggle() == BGM.PLAYER_PLAY)
-                    btnMusic.setBackgroundResource(R.drawable.btn_music);
-                else
-                    btnMusic.setBackgroundResource(R.drawable.btn_nomusic);
+                BGM.toggle();
+                v.setScaleX(1f);
+                v.setScaleY(1f);
             }
+            if(BGM.getStatus() == BGM.PLAYER_PLAY)
+                v.setBackgroundResource(R.drawable.btn_music);
+            else
+                v.setBackgroundResource(R.drawable.btn_nomusic);
             return true;
         });
         return btnMusic;
@@ -100,14 +106,16 @@ public class ViewUtils {
      * @param level 关卡等级
      */
     public static ImageButton setBtnLevel(final Activity activity, final int level) {
+        if (activity == null) return null;
+
         ImageButton btnLevel = new ImageButton(activity);
-        int resid = R.drawable.level_1;
+        int resId = R.drawable.level_1;
         try {
             Field field = R.drawable.class.getField("level_"+ level);
-            resid = field.getInt(field.getName());
-        } catch (Exception e) {}
+            resId = field.getInt(field.getName());
+        } catch (Exception ignored) {}
 
-        btnLevel.setBackgroundResource(resid);
+        btnLevel.setBackgroundResource(resId);
 
         final int margin = activity.getResources().getDimensionPixelSize(R.dimen.levels_margin);
         final int active_margin = activity.getResources().getDimensionPixelSize(R.dimen.levels_top_active);
