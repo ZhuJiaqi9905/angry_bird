@@ -15,39 +15,47 @@ import com.example.angrybirds.R;
 public class BGM {
     public static final int PLAYER_PAUSE = 0; // 关闭音乐
     public static final int PLAYER_PLAY = 1; // 开启音乐
+    private static int status; // 是否开启音乐
 
     private static MediaPlayer player;
     private static SoundPool soundPool;
-    private static int status; // 是否开启音乐
-    private static int touchDownSound;
-    private static int touchUpSound;
-    private static int slingshotSound;
-    private static int shotSound;
+
+    private static int touchDownSound; // 按键按下音效
+    private static int touchUpSound; // 按键抬起音效
+    private static int slingshotSound; // 拉动弹弓音效
+    private static int shotSound; // 发射音效
+    private static int defeatSound; // 失败音效
+    private static int victorySound; // 胜利音效
+
     private static int slingshotStream;
 
     /**
      * 初始化
      * @param context context
-     * @param resid 背景音乐 resource id
+     * @param resId 背景音乐 resource id
      */
-    public static void init(Context context, int resid) {
-        player = MediaPlayer.create(context, resid);
+    public static void init(Context context, int resId) {
+        // 播放背景音乐
+        player = MediaPlayer.create(context, resId);
         player.setLooping(true);
         player.start();
+
+        // 加载音效资源
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
         touchDownSound= soundPool.load(context, R.raw.touch_down, 1);
         touchUpSound = soundPool.load(context, R.raw.touch_up, 1);
         slingshotSound = soundPool.load(context, R.raw.slingshot, 1);
         shotSound = soundPool.load(context, R.raw.shot, 1);
+        defeatSound = soundPool.load(context, R.raw.defeat, 1);
+        victorySound = soundPool.load(context, R.raw.victory, 1);
+
         status = PLAYER_PLAY;
-        Log.v("MediaPlayer", "start");
     }
 
     /**
      * 切换状态（开启声音、关闭声音）
-     * @return 最终的状态
      */
-    public static int toggle(){
+    public static void toggle(){
         if(status == PLAYER_PAUSE) {
             player.start();
             status = PLAYER_PLAY;
@@ -55,7 +63,6 @@ public class BGM {
             player.pause();
             status = PLAYER_PAUSE;
         }
-        return status;
     }
 
     /**
@@ -109,9 +116,27 @@ public class BGM {
     /**
      * 播放小鸟发射的声音
      */
-    public static void playShot(){
+    public static void playBirdShot(){
         if(status == PLAYER_PLAY) {
             soundPool.play(shotSound, 1, 1, 1, 0, 1);
+        }
+    }
+
+    /**
+     * 播放失败音效
+     */
+    public static void playDefeat(){
+        if(status == PLAYER_PLAY) {
+            soundPool.play(defeatSound, 1, 1, 1, 0, 1);
+        }
+    }
+
+    /**
+     * 播放胜利音效
+     */
+    public static void playVictory(){
+        if(status == PLAYER_PLAY) {
+            soundPool.play(victorySound, 1, 1, 1, 0, 1);
         }
     }
 

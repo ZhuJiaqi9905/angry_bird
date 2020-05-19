@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!--关卡总数-->
-    <integer name="levels">10</integer>
-
-    <!--游戏帧率-->
-    <integer name="fps">30</integer>
-</resources>

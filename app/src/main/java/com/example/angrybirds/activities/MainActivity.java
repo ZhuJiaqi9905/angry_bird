@@ -23,14 +23,20 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setButtons() {
         // 开始游戏按钮
+        btnStart = findViewById(R.id.btnStart);
         final Intent intent = new Intent(MainActivity.this, SelectLevelActivity.class);
-        btnStart = ViewUtils.setButton(this, R.id.btnStart, ()-> startActivity(intent));
+        ViewUtils.setBtnAction(btnStart, ()-> startActivity(intent));
 
-        // 退出
-        btnExit = ViewUtils.setButton(this, R.id.btnExit, this::finish);
+        // 退出按钮
+        btnExit = findViewById(R.id.btnExit);
+        ViewUtils.setBtnAction(btnExit, this::finish);
 
         // 开启/关闭音乐按钮
-        btnMusic = ViewUtils.setBtnMusic(this, R.id.btnMusic);
+        btnMusic = findViewById(R.id.btnMusic);
+        ViewUtils.setBtnAction(btnMusic, ()-> {
+            BGM.toggle();
+            ViewUtils.setMusicIcon(btnMusic);
+        });
     }
 
     @Override
@@ -43,17 +49,14 @@ public class MainActivity extends AppCompatActivity {
             BGM.init(this, R.raw.bgm); // 背景音乐
         } catch (Exception e) { e.printStackTrace(); }
 
-        setButtons(); // 按键
+        setButtons(); // 设置按键
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         BGM.start();
-        if(BGM.getStatus() == BGM.PLAYER_PLAY)
-            btnMusic.setBackgroundResource(R.drawable.btn_music);
-        else
-            btnMusic.setBackgroundResource(R.drawable.btn_nomusic);
+        ViewUtils.setMusicIcon(btnMusic);
     }
 
     @Override

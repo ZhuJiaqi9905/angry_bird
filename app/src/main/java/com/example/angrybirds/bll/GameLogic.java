@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.BitmapFactory;
 
 import com.example.angrybirds.R;
+import com.example.angrybirds.music.BGM;
 import com.example.angrybirds.ui.UiInterface;
 
 /**
@@ -76,10 +77,12 @@ public class GameLogic implements ShotListener, ClickListener, Runnable,
                 bird.x += dx * 0.2;
                 bird.y += dy * 0.2;
                 if(bird.x > ui.getScreenW() || bird.x < 0){
+                    BGM.playVictory();
                     ui.gameOver(true);
                     status = GAME_OVER;
                 }
                 if(bird.y > ui.getGroundY() - bird.getHeight()/2 || bird.y < 0){
+                    BGM.playDefeat();
                     ui.gameOver(false);
                     status = GAME_OVER;
                 }

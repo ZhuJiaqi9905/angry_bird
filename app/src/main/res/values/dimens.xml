@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 开始游戏按钮底部间距 -->
-    <dimen name="start_bottom">50dp</dimen>
-    <!-- 按钮间距 -->
-    <dimen name="button_gap">8dp</dimen>
-    <!-- 关卡标题顶部间距 -->
-    <dimen name="level_top">10dp</dimen>
-    <!-- 选择关卡顶部间距 -->
-    <dimen name="select_top">20dp</dimen>
-    <!-- 选择关卡底部间距 -->
-    <dimen name="select_bottom">10dp</dimen>
-    <!-- 关卡按钮边框 -->
-    <dimen name="levels_margin">10dp</dimen>
-    <!-- 关卡按钮按下后顶部间距 -->
-    <dimen name="levels_top_active">20dp</dimen>
-    <!-- 关卡两侧间距 -->
-    <dimen name="levels_side">50dp</dimen>
-
     <!-- 弹弓皮筋宽度 -->
     <dimen name="slingshot_width">10dp</dimen>
 
-    <!-- 关卡字体大小 -->
-    <dimen name="level_font_size">20pt</dimen>
-    <!-- 选择字体大小 -->
-    <dimen name="select_font_size">30pt</dimen>
     <!-- 游戏结束状态字体大小 -->
     <dimen name="status_font_size">60pt</dimen>
 </resources>

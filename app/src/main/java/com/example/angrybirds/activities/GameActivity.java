@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.TextView;
-
 import androidx.annotation.Nullable;
 
 import com.example.angrybirds.ui.GameSurfaceView;
@@ -23,7 +21,7 @@ import com.example.angrybirds.music.BGM;
  */
 public class GameActivity extends Activity {
     private ImageButton btnBack, btnMusic, btnResume;
-    private GameSurfaceView gameView; // ui
+    private GameSurfaceView gameView; // 控制界面的刷新
     private int level;
 
     /**
@@ -31,34 +29,44 @@ public class GameActivity extends Activity {
      */
     @SuppressLint("ClickableViewAccessibility")
     private void setButtons() {
-        // 返回
-        btnBack = ViewUtils.setButton(this, R.id.btnBack, this::finish);
+        // 返回按钮
+        btnBack = findViewById(R.id.btnBack);
+        ViewUtils.setBtnAction(btnBack, this::finish);
 
-        // 开启/关闭音乐
-        btnMusic = ViewUtils.setBtnMusic(this, R.id.btnMusic);
+        // 开启/关闭音乐按钮
+        btnMusic = findViewById(R.id.btnMusic);
+        ViewUtils.setBtnAction(btnMusic, ()-> {
+            BGM.toggle();
+            ViewUtils.setMusicIcon(btnMusic);
+        });
 
         // 重新开始
-        btnResume = ViewUtils.setButton(this, R.id.btnResume, gameView::resume);
+        btnResume = findViewById(R.id.btnResume);
+        ViewUtils.setBtnAction(btnResume, gameView::resume);
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 创建布局并放入按键、标题和gameSurfaceView
+        // 创建布局
         FrameLayout layout = new FrameLayout(this);
         setContentView(layout);
 
+        // 放入游戏界面
         gameView = new GameSurfaceView(this);
         layout.addView(gameView);
 
+        // 放入按钮
         layout.addView(LayoutInflater.from(this).inflate(R.layout.activity_game, null));
         setButtons();
 
         // 获得当前等级
         Intent intent = getIntent();
         level = intent.getIntExtra("level", 1);
-        ((TextView) findViewById(R.id.level)).setText(
-                String.format(getString(R.string.Level), level));
+
+        // 设置标题图片
+        int resId = ViewUtils.getResIdByName("title_level_"+ level, R.drawable.title_level_1);
+        findViewById(R.id.level).setBackgroundResource(resId);
 
         // 创建线程处理游戏逻辑
         new Thread(() -> new GameLogic(GameActivity.this, level, gameView)).start();
@@ -68,10 +76,7 @@ public class GameActivity extends Activity {
     protected void onStart() {
         super.onStart();
         BGM.start();
-        if(BGM.getStatus() == BGM.PLAYER_PLAY)
-            btnMusic.setBackgroundResource(R.drawable.btn_music);
-        else
-            btnMusic.setBackgroundResource(R.drawable.btn_nomusic);
+        ViewUtils.setMusicIcon(btnMusic);
     }
 
     @Override

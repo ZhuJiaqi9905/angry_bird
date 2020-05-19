@@ -36,11 +36,6 @@ public interface UiInterface {
     void deleteBody(Body body);
 
     /**
-     * 恢复初始状态
-     */
-    void resume();
-
-    /**
      * 将一个物品放在弹弓上（不需要再调用addBody）
      * 此时该物品的位置会随着玩家的拖拽而改变，直到玩家松手被发射出去
      * @param listener 当物品被发射出去时会调用listener;
@@ -48,9 +43,9 @@ public interface UiInterface {
     void putOnSlingshot(Body body, ShotListener listener);
 
     /**
-     * 当玩家点击屏幕时会调用listener;
+     * 恢复初始状态
      */
-    void setClickListener(ClickListener listener);
+    void resume();
 
     /**
      * 游戏结束了
@@ -72,4 +67,9 @@ public interface UiInterface {
      * 当玩家开始游戏或者按下HOME键又返回游戏时会调用listener
      */
     void setCreateListener(CreateListener listener);
+
+    /**
+     * 当玩家点击屏幕时会调用listener;
+     */
+    void setClickListener(ClickListener listener);
 }

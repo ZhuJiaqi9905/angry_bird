@@ -1,54 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_select">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/select_top"
-        android:layout_marginBottom="@dimen/select_bottom"
+    <ImageView
         android:id="@+id/title"
-        android:textSize="@dimen/select_font_size"
-        android:fontFamily="@font/angrybirds"
-        android:textColor="@color/white"
-        android:text="@string/Select_Level"/>
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="400:150"
+        app:layout_constraintWidth_percent="0.4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/select_level"/>
 
     <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/btnBack"
-        android:layout_alignParentRight="true"
-        android:layout_margin="@dimen/button_gap"
-        android:background="@drawable/btn_back"
-        android:layout_alignParentEnd="true" />
+        style="@style/ButtonSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.05"
+        app:layout_constraintHorizontal_bias="0.95"
+        android:background="@drawable/btn_back"/>
 
 
     <ImageButton
         android:id="@+id/btnMusic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/button_gap"
-        android:layout_toLeftOf="@id/btnBack"
-        android:background="@drawable/btn_music"
-        android:layout_toStartOf="@id/btnBack" />
+        style="@style/ButtonSize"
+        app:layout_constraintEnd_toStartOf="@id/btnBack"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.05"
+        app:layout_constraintHorizontal_bias="0.99"
+        android:background="@drawable/btn_music"/>
 
     <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:layout_below="@id/title"
-        android:layout_marginRight="@dimen/levels_side"
-        android:layout_marginLeft="@dimen/levels_side"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title"
         android:fillViewport="true">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:id="@+id/levels"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
             android:orientation="horizontal">
         </LinearLayout>
     </HorizontalScrollView>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

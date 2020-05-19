@@ -1,16 +1,11 @@
 package com.example.angrybirds.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.example.angrybirds.R;
-import com.example.angrybirds.activities.GameActivity;
 import com.example.angrybirds.music.BGM;
 
 import java.lang.reflect.Field;
@@ -27,26 +22,33 @@ public class ViewUtils {
     private static final float ACTIVE_SCALE = 0.85f;
 
     /**
-     * 设置View margin 单位 px
+     * 设置按钮大小 单位 px
      */
-    public static void setMargins(View view, int left, int top, int right, int bottom){
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(left, top, right, bottom);
-        view.setLayoutParams(lp);
+    public static void setBtnSize(View btn, int width, int height){
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(width, height);
+        btn.setLayoutParams(lp);
     }
 
     /**
-     * 设置按钮
-     * @param activity 按键所在的activity
-     * @param id 按钮组件resource id
-     * @param fun 点击后的要做的事
-     * @return 设置完成的 btn
+     * 依据当前BGM设置，设置Music按钮图标
+     * @param btn 音乐按钮
      */
-    public static ImageButton setButton(final Activity activity, final int id, final Runnable fun){
-        if (activity == null) return null;
+    public static void setMusicIcon(View btn) {
+        if(BGM.getStatus() == BGM.PLAYER_PLAY){
+            btn.setBackgroundResource(R.drawable.btn_music);
+        } else {
+            btn.setBackgroundResource(R.drawable.btn_nomusic);
+        }
+    }
 
-        ImageButton btn = activity.findViewById(id);
+    /**
+     * 设置按钮行为
+     * @param btn 要设置的按钮
+     * @param fun 点击后的要做的事
+     */
+    public static void setBtnAction(final View btn, final Runnable fun){
+        if (btn == null) return;
+
         btn.setOnTouchListener((v, event) -> {
             // 按下
             if(event.getAction() == MotionEvent.ACTION_DOWN){
@@ -59,87 +61,27 @@ public class ViewUtils {
                 v.setScaleX(1f);
                 v.setScaleY(1f);
                 BGM.playTouchUp();
-                if(fun != null)
+                if(fun != null) {
                     fun.run();
+                }
             }
             return true;
         });
-        return btn;
     }
 
     /**
-     * 开启/关闭音乐按钮
-     * 涉及图标的切换，单独处理
-     * @param activity 所在activity
-     * @param id 按钮组件id
+     * 通过名称获得drawable中的资源id
+     * @param name 资源名
+     * @param defaut 资源不存在时的默认返回值
+     * @return 资源id
      */
-    public static ImageButton setBtnMusic(final Activity activity, final int id) {
-        if (activity == null) return null;
-
-        ImageButton btnMusic = activity.findViewById(id);
-        btnMusic.setOnTouchListener((v, event) -> {
-            // 按下
-            if(event.getAction() == MotionEvent.ACTION_DOWN){
-                v.setScaleX(ACTIVE_SCALE);
-                v.setScaleY(ACTIVE_SCALE);
-                BGM.playTouchDown();
-            }
-            // 抬起
-            else if(event.getAction() == MotionEvent.ACTION_UP) {
-                BGM.playTouchUp();
-                BGM.toggle();
-                v.setScaleX(1f);
-                v.setScaleY(1f);
-            }
-            if(BGM.getStatus() == BGM.PLAYER_PLAY)
-                v.setBackgroundResource(R.drawable.btn_music);
-            else
-                v.setBackgroundResource(R.drawable.btn_nomusic);
-            return true;
-        });
-        return btnMusic;
-    }
-
-    /**
-     * 设置选择关卡按钮
-     * @param activity 所处的activity
-     * @param level 关卡等级
-     */
-    public static ImageButton setBtnLevel(final Activity activity, final int level) {
-        if (activity == null) return null;
-
-        ImageButton btnLevel = new ImageButton(activity);
-        int resId = R.drawable.level_1;
+    public static int getResIdByName(String name, int defaut) {
+        int resId = defaut;
         try {
-            Field field = R.drawable.class.getField("level_"+ level);
+            Field field = R.drawable.class.getField(name);
             resId = field.getInt(field.getName());
         } catch (Exception ignored) {}
-
-        btnLevel.setBackgroundResource(resId);
-
-        final int margin = activity.getResources().getDimensionPixelSize(R.dimen.levels_margin);
-        final int active_margin = activity.getResources().getDimensionPixelSize(R.dimen.levels_top_active);
-        setMargins(btnLevel, margin, margin, margin, margin);
-
-        btnLevel.setOnTouchListener((v, event) -> {
-            if(event.getAction() == MotionEvent.ACTION_DOWN){
-                setMargins(v, margin, active_margin, margin, margin);
-                BGM.playTouchDown();
-            }
-            else if(event.getAction() == MotionEvent.ACTION_CANCEL) {
-                setMargins(v, margin, margin, margin, margin);
-                BGM.playTouchUp();
-            }
-            else if(event.getAction() == MotionEvent.ACTION_UP) {
-                setMargins(v, margin, margin, margin, margin);
-                BGM.playTouchUp();
-                Intent intent = new Intent(activity, GameActivity.class);
-                intent.putExtra("level", level);
-                activity.startActivity(intent);
-            }
-            return true;
-        });
-        return btnLevel;
+        return resId;
     }
 
     /**
