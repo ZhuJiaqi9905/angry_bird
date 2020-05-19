@@ -1,5 +1,6 @@
 package com.example.angrybirds.ui;
 
+import com.example.angrybirds.bll.BasicBody;
 import com.example.angrybirds.bll.Body;
 import com.example.angrybirds.bll.ClickListener;
 import com.example.angrybirds.bll.CreateListener;
@@ -27,20 +28,20 @@ public interface UiInterface {
      * 添加一个物品
      * @param body 物品
      */
-    void addBody(Body body);
+    void addBody(BasicBody body);
 
     /**
      * 删除一个物品
      * @param body 物品
      */
-    void deleteBody(Body body);
+    void deleteBody(BasicBody body);
 
     /**
      * 将一个物品放在弹弓上（不需要再调用addBody）
      * 此时该物品的位置会随着玩家的拖拽而改变，直到玩家松手被发射出去
      * @param listener 当物品被发射出去时会调用listener;
      */
-    void putOnSlingshot(Body body, ShotListener listener);
+    void putOnSlingshot(BasicBody body, ShotListener listener);
 
     /**
      * 恢复初始状态

@@ -56,6 +56,12 @@ public class ViewUtils {
                 v.setScaleY(ACTIVE_SCALE);
                 BGM.playTouchDown();
             }
+            // 取消
+            else if(event.getAction() == MotionEvent.ACTION_CANCEL) {
+                v.setScaleX(1f);
+                v.setScaleY(1f);
+                BGM.playTouchUp();
+            }
             // 抬起
             else if(event.getAction() == MotionEvent.ACTION_UP) {
                 v.setScaleX(1f);

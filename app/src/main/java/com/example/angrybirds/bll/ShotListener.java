@@ -9,5 +9,5 @@ public interface ShotListener {
      * @param x body初始的位置横坐标
      * @param y body初始的位置纵坐标
      */
-    void shotPerformed(Body body, float x, float y);
+    void shotPerformed(BasicBody body, float x, float y);
 }

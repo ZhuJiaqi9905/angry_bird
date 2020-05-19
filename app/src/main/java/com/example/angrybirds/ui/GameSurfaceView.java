@@ -13,7 +13,7 @@ import android.view.View;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.example.angrybirds.R;
-import com.example.angrybirds.bll.Body;
+import com.example.angrybirds.bll.BasicBody;
 import com.example.angrybirds.bll.ClickListener;
 import com.example.angrybirds.bll.CreateListener;
 import com.example.angrybirds.bll.DestroyListener;
@@ -39,8 +39,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     private int status; // 游戏状态
     private boolean runFlag; // 刷新画面线程的结束标志
 
-    private List<Body> bodyList; // 要显示的所有物品
-    private Body shotBody; // 在弹弓上的物品
+    private List<BasicBody> bodyList; // 要显示的所有物品
+    private BasicBody shotBody; // 在弹弓上的物品
     private boolean focusOnShot; // 是否正在拖动弹弓上的物品
 
     private ShotListener shotListener; // 弹弓发射时间监听
@@ -78,7 +78,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             // 背景图片
             canvas.drawBitmap(bgBmp, 0, 0, null);
             // 绘制物体
-            for(Body body: bodyList) {
+            for(BasicBody body: bodyList) {
                 drawBody(body);
             }
             // 绘制游戏结束界面
@@ -107,7 +107,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         }
     }
 
-    private void drawBody(Body body) {
+    private void drawBody(BasicBody body) {
         if(body == null) return;
 
         Paint paint = new Paint();
@@ -155,7 +155,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
-    public void addBody(Body body) {
+    public void addBody(BasicBody body) {
         while(status == GAME_NOT_READY){
             try { Thread.sleep(100); } catch (Exception ignored) {}
         }
@@ -163,14 +163,14 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
-    public void deleteBody(Body body) {
+    public void deleteBody(BasicBody body) {
         if(shotBody == body)
             shotBody = null;
         bodyList.remove(body);
     }
 
     @Override
-    public void putOnSlingshot(Body body, ShotListener listener) {
+    public void putOnSlingshot(BasicBody body, ShotListener listener) {
         addBody(body);
         shotBody = body;
         body.x = slingshotW;
