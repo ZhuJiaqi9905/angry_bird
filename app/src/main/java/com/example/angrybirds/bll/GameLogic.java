@@ -15,6 +15,7 @@ import com.example.angrybirds.ui.UiInterface;
  */
 public class GameLogic implements ShotListener, ClickListener, Runnable,
         ResumeListener, DestroyListener, CreateListener{
+    private static final int FPS = 30; // 帧率
     private static final int GAME_READY = 0; // 小鸟未发射
     private static final int GAME_FLYING = 1; // 小鸟正在飞翔
     private static final int GAME_OVER = 2; // 结束了
@@ -70,7 +71,6 @@ public class GameLogic implements ShotListener, ClickListener, Runnable,
     public void run() {
         // 朝一个方向移动，超出屏幕时游戏结束
         while(flag) {
-            int fps = context.getResources().getInteger(R.integer.fps);
             long startTime = System.currentTimeMillis();
 
             if(status == GAME_FLYING){
@@ -90,8 +90,8 @@ public class GameLogic implements ShotListener, ClickListener, Runnable,
 
             long endTime = System.currentTimeMillis();
             try {
-                if (endTime - startTime < 1000 / fps){
-                    Thread.sleep(1000 / fps - (endTime - startTime));
+                if (endTime - startTime < 1000 / FPS){
+                    Thread.sleep(1000 / FPS - (endTime - startTime));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
