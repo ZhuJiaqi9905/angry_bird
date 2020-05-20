@@ -168,7 +168,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
                     for (int i = 0; i < pigGroup.size(); i++) {
                         pig = pigGroup.get(i);
                         if(pig != null && pig.alive){
-                           pig.updatePosition(); //根据物理世界的模拟，同步猪的位置
+                            pig.updatePosition(); //根据物理世界的模拟，同步猪的位置
                         }
                     }
                     //材料
@@ -231,7 +231,6 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         }
         if(!pigAlive) { // 游戏胜利
             ui.gameOver(true);
-            BGM.playVictory();
             Log.d("game win", "in game win");
             status = GAME_OVER;
         }
@@ -240,7 +239,6 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
             birdAlive = curBirdIndex < birdGroup.size();
             if(!birdAlive){ // 游戏失败
                 ui.gameOver(false);
-                BGM.playDefeat();
                 status = GAME_OVER;
             }
             else{ // 新鸟上弓箭
@@ -352,6 +350,5 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         //如果相对速度大于死亡速度,就死了
         return relativeVel.length() > DIEDSPEED;
     }
-
 }
 

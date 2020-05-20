@@ -1,7 +1,6 @@
 package com.example.angrybirds.ui;
 
 import com.example.angrybirds.bll.BasicBody;
-import com.example.angrybirds.bll.Body;
 import com.example.angrybirds.bll.ClickListener;
 import com.example.angrybirds.bll.CreateListener;
 import com.example.angrybirds.bll.DestroyListener;

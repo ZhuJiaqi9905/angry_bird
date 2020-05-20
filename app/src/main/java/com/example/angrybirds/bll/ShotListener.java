@@ -1,7 +1,5 @@
 package com.example.angrybirds.bll;
 
-import com.example.angrybirds.bll.Body;
-
 public interface ShotListener {
     /**
      * body 从弹弓上被发射出去
