@@ -24,7 +24,7 @@ public class Ground extends BasicBody {
         characterfixdef.filter.groupIndex = 1;
     }
 
-    public Body createGroundBody(World world, float RATE) {
+    public  synchronized Body createGroundBody(World world, float RATE) {
         PolygonShape gshape = new PolygonShape();
         gshape.setAsBox(width / RATE, height / 2 /RATE);
         characterfixdef.shape = gshape;

@@ -212,9 +212,6 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
     @Override
     public void setCreateListener(CreateListener listener) {
         createListener = listener;
-        if (status != GAME_NOT_READY) {
-            createListener.createPerformed();
-        }
     }
 
     @Override

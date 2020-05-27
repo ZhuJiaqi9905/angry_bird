@@ -56,8 +56,8 @@ class Bird extends BasicBody {
 
     }
 
-    // version 3
-    void createBirdBody(World world, float RATE){
+
+    public synchronized void createBirdBody(World world, float RATE){
         float w = getWidth() ;
         float h = getHeight();
         Log.d("Bird", "height"  + this.getHeight() + "width " + this.getWidth());

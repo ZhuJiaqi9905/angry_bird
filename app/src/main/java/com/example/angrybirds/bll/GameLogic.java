@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.example.angrybirds.music.BGM;
 import com.example.angrybirds.ui.UiInterface;
 
 import org.jbox2d.callbacks.ContactImpulse;
@@ -27,10 +26,9 @@ import java.util.ArrayList;
 import static android.content.ContentValues.TAG;
 
 /**
- * 一个简单的游戏逻辑处理
- * 小鸟发射后朝一个方向移动，点击屏幕调整移动方向
- * 小鸟飞出屏幕时游戏结束
- * @author ZhengMinghang
+ *
+ *
+ *
  */
 public class GameLogic implements ShotListener, ClickListener, Runnable, ContactListener,
         ResumeListener, DestroyListener, CreateListener{
@@ -44,16 +42,16 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     private int level;
 
     //鸟，猪，材料的容器
-    private ArrayList<Bird> birdGroup;
-    private ArrayList<Pigs> pigGroup;
-    private ArrayList<Material> materialGroup;
+    private volatile ArrayList<Bird> birdGroup;
+    private volatile ArrayList<Pigs> pigGroup;
+    private volatile ArrayList<Material> materialGroup;
 
     private ArrayList<Body> bodyToBeDestroyed;//要被销毁的body刚体
 
 
     // 目前执行动作的小鸟及其属性
-    private Bird curBird;
-    private int curBirdIndex; // 小鸟在数组中编号
+    private volatile Bird curBird;
+    private volatile int curBirdIndex; // 小鸟在数组中编号
 
     private float dx, dy; // 小鸟飞翔的方向
 
@@ -73,7 +71,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     //大地
     Ground ground;
 
-    private final static float DIEDSPEED = 5;
+    private final static float DIEDSPEED = 10;
 
     //不同等级的布局
     LevelLayout levelLayout;
@@ -93,6 +91,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     }
 
     private void init() {
+        Log.d("init", "init create");
         //创建物理世界的部分
         gravity = new Vec2(0, 10);
         world = new World(gravity, false);
@@ -101,9 +100,6 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         aabb.upperBound.set(100, 100);
         world.queryAABB(null, aabb);
         world.setContactListener(this); // 设置碰撞监听
-        Log.v("screenH", "" + ui.getScreenH());
-        Log.v("screenW", ""+ui.getScreenW());
-        Log.v("groundY", ""+ui.getGroundY());
 
         // 大地刚体创建
         ground = new Ground(0, (ui.getScreenH() + ui.getGroundY())/2, ui.getScreenW() , ui.getScreenH()- ui.getGroundY(), context);
@@ -123,6 +119,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         // 小鸟上弓, 游戏开始
         curBirdIndex = 0;
         newTurn(curBirdIndex);
+
     }
 
 
@@ -140,7 +137,10 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     }
 
     @Override
-    public void shotPerformed(BasicBody body, float x, float y) {
+    /**
+     * 准备发射
+     */
+    public synchronized void shotPerformed(BasicBody body, float x, float y) {
         dx = x - body.x;
         dy = y - body.y;
         status = GAME_FLYING;
@@ -155,40 +155,48 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
 
     @Override
     public void run() {
+
         while (flag){
             if(status != GAME_OVER){
-                if(curBird == null){
-                    Log.v("null ", "curBird is null");
-                }
-                if(curBird != null && curBird.body != null){
-
-                    simulateWorld();
-                    // 猪群
-                    Pigs pig;
+                Log.d("run", "in run");
+                simulateWorld();
+                // 猪群
+                Pigs pig;
+                //                if(pigGroup == null || materialGroup == null || curBird == null){
+                //                    Log.d("in run ", "pigGroup is null");
+                //                    Log.d("in run", "materialGroup is null");
+                //                    Log.d("in run", "curBird is null");
+                //                    return;
+                //                }
+                if(pigGroup != null){
                     for (int i = 0; i < pigGroup.size(); i++) {
                         pig = pigGroup.get(i);
                         if(pig != null && pig.alive){
+                            Log.d("in run", "update pig");
                             pig.updatePosition(); //根据物理世界的模拟，同步猪的位置
                         }
                     }
-                    //材料
-                    Material material;
+                }
+
+                //材料
+                Material material;
+                if(materialGroup != null){
                     for (int i = 0; i < materialGroup.size(); i++) {
                         material = materialGroup.get(i);
                         if(material != null && material.alive){
+                            Log.d("in run", "update material");
                             material.updatePosition();//根据物理世界的模拟，同步材料的位置
                         }
                     }
-
-                    //小鸟
-                    if(status == GAME_FLYING){
-                        if(curBird != null){
-                            curBird.updatePosition();//根据物理世界的模拟，同步小鸟的位置
-                            check();
-                        }
-
-                    }
                 }
+
+                //小鸟
+                if(status == GAME_FLYING && curBird != null){
+                    Log.d("in run", "update bird");
+                    curBird.updatePosition();//根据物理世界的模拟，同步小鸟的位置
+                    check();
+                }
+
                 try{
                     Thread.sleep(10);
                 }catch(InterruptedException e){
@@ -207,8 +215,13 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         }
     }
 
+    /**
+     * 检查小鸟是否越界
+     */
     private void check(){
-        // 越界检查
+
+        if(curBird == null || curBird.body == null)
+            return;
         Vec2 v = curBird.body.getLinearVelocity();
         if(curBird.x > ui.getScreenW() || curBird.y < 0 || curBird.x < 0 ||
                 v.x * v.x + v.y * v.y < 1){
@@ -248,7 +261,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     }
 
     // 新的小鸟上弓
-    void newTurn(int index){
+    synchronized void newTurn(int index){
 
         curBird = birdGroup.get(index);
         ui.putOnSlingshot(curBird, this); // 上弓箭
@@ -257,11 +270,11 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
 
     @Override
     public void destroyPerformed() {
-        flag = false;
 
         for(Body b : this.bodyToBeDestroyed){
             world.destroyBody(b);
         }
+        flag = false;
     }
 
     @Override
@@ -350,5 +363,6 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         //如果相对速度大于死亡速度,就死了
         return relativeVel.length() > DIEDSPEED;
     }
+
 }
 

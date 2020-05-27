@@ -25,7 +25,7 @@ public class BasicBody {
     BodyDef characterdef = new BodyDef();
     FixtureDef characterfixdef = new FixtureDef();
     public Shape charactershape;
-    Body body;//一个物体所对应的jbox2d中的刚体
+    volatile Body body;//一个物体所对应的jbox2d中的刚体
     private final static float RATE = 30; //物理世界和像素转换比例
 
     /**

@@ -52,7 +52,7 @@ class Material extends BasicBody {
     }
 
 
-    void createMaterialBody(World world, float RATE){
+    public synchronized void createMaterialBody(World world, float RATE){
         float w = getWidth();
         float h = getHeight();
 
@@ -68,7 +68,6 @@ class Material extends BasicBody {
         setPosition(new Vec2((x)/RATE, (y)/RATE) );
 
         body = world.createBody(characterdef); //物理世界创造物体
-        System.out.println(body == null);
         body.createFixture(characterfixdef);
         body.m_userData = this; //在body中保存材料
         return;

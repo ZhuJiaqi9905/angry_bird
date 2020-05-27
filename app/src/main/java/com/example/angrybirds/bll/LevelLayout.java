@@ -13,9 +13,9 @@ public class LevelLayout {
      * 进行每个关卡的布局。
      *
      */
-    private ArrayList<Bird> birdList;
-    private ArrayList<Pigs> pigList;
-    private ArrayList<Material> materialList;
+    private volatile ArrayList<Bird> birdList;
+    private volatile ArrayList<Pigs> pigList;
+    private volatile ArrayList<Material> materialList;
     private UiInterface ui;
     private Context context;
     private World world;

@@ -29,7 +29,7 @@ class Pigs extends BasicBody {
     }
 
 
-    void createPigBody(World world, float RATE){
+    public synchronized void createPigBody(World world, float RATE){
         float w = getWidth() ;
         float h = getHeight();
         Log.d("pig", "height"  + this.getHeight() + "width " + this.getWidth());
