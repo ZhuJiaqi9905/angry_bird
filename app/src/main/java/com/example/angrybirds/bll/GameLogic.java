@@ -36,6 +36,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     private static final int GAME_FLYING = 1; // 小鸟正在飞翔
     private static final int GAME_OVER = 2; // 结束了
     private int status; // 状态
+    private boolean startSimulate = true;
 
     private Context context;
     private UiInterface ui;
@@ -82,15 +83,16 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
 
         this.ui = ui;
         this.context = context;
+        init();
+
         ui.setDestroyListener(this);
         ui.setResumeListener(this);
         ui.setClickListener(this);
         ui.setCreateListener(this);
-
-        init();
     }
 
     private void init() {
+        startSimulate = false;
         Log.d("init", "init create");
         //创建物理世界的部分
         gravity = new Vec2(0, 10);
@@ -119,7 +121,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         // 小鸟上弓, 游戏开始
         curBirdIndex = 0;
         newTurn(curBirdIndex);
-
+        startSimulate = true;
     }
 
 
@@ -141,6 +143,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
      * 准备发射
      */
     public synchronized void shotPerformed(BasicBody body, float x, float y) {
+        startSimulate = false;
         dx = x - body.x;
         dy = y - body.y;
         status = GAME_FLYING;
@@ -150,14 +153,14 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         //把bird和刚体联系起来
         curBird.createBirdBody(world, RATE);
         curBird.body.applyForce(new Vec2(dx, dy), curBird.body.getWorldCenter());
-
+        startSimulate = true;
     }
 
     @Override
     public void run() {
 
         while (flag){
-            if(status != GAME_OVER){
+            if(status != GAME_OVER && startSimulate){
                 Log.d("run", "in run");
                 simulateWorld();
                 // 猪群
@@ -222,9 +225,10 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
 
         if(curBird == null || curBird.body == null)
             return;
+
         Vec2 v = curBird.body.getLinearVelocity();
-        if(curBird.x > ui.getScreenW() || curBird.y < 0 || curBird.x < 0 ||
-                v.x * v.x + v.y * v.y < 1){
+        // boolean isStop =  v.x * v.x + v.y * v.y < 1;
+        if(curBird.x > ui.getScreenW() || curBird.y < 0 || curBird.x < 0 || curBird.isStopped(0.1f)){
             curBird.alive = false;
             curBird.body.setActive(false);
             bodyToBeDestroyed.add(curBird.body);

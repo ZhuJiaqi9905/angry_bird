@@ -27,6 +27,7 @@ public class BasicBody {
     public Shape charactershape;
     volatile Body body;//一个物体所对应的jbox2d中的刚体
     private final static float RATE = 30; //物理世界和像素转换比例
+    float timeStopped;
 
     /**
      * 产生一个物体
@@ -82,6 +83,18 @@ public class BasicBody {
             mx.postTranslate(x - getWidth() / 2f, y - getHeight() / 2f);
 
             canvas.drawBitmap(ico, mx, paint);
+        }
+    }
+
+    public Boolean isStopped(float delta) {
+        boolean isMoving = (
+                Math.abs(body.getLinearVelocity().x) >= 0.25f || Math.abs(body.getLinearVelocity().y) >= 0.25f);
+        if(isMoving) {
+            timeStopped = 0f;
+            return false;
+        } else {
+            timeStopped += delta;
+            return timeStopped >= 0.3f;
         }
     }
 

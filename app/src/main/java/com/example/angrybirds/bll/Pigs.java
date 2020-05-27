@@ -42,8 +42,9 @@ class Pigs extends BasicBody {
         characterfixdef.filter.groupIndex = 1; // 设置分组
 
         setPosition(new Vec2((x)/RATE, (y)/RATE) );
-
-        this.body = world.createBody(characterdef); //物理世界创造物体
+        while(this.body == null){
+            this.body = world.createBody(characterdef); //物理世界创造物体
+        }
         body.createFixture(characterfixdef);
         body.m_userData = this; //在body中保存刚体
         return;

@@ -67,7 +67,9 @@ class Material extends BasicBody {
 
         setPosition(new Vec2((x)/RATE, (y)/RATE) );
 
-        body = world.createBody(characterdef); //物理世界创造物体
+        while(this.body == null){
+            this.body = world.createBody(characterdef); //物理世界创造物体
+        }
         body.createFixture(characterfixdef);
         body.m_userData = this; //在body中保存材料
         return;

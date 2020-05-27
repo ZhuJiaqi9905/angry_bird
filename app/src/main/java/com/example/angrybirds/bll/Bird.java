@@ -71,7 +71,9 @@ class Bird extends BasicBody {
 
         setPosition(new Vec2((x)/RATE, (y)/RATE) );
 
-        this.body = world.createBody(characterdef); //物理世界创造物体
+        while (this.body == null) {
+            this.body = world.createBody(characterdef); //物理世界创造物体
+        }
         body.createFixture(characterfixdef);
         body.m_userData = this; //在body中保存Bird
         body.setActive(true);
