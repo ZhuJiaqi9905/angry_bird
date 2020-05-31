@@ -22,12 +22,16 @@ public class BGM {
 
     private static int touchDownSound; // 按键按下音效
     private static int touchUpSound; // 按键抬起音效
-    private static int slingshotSound; // 拉动弹弓音效
+    private static int strechSound; // 拉动弹弓音效
     private static int shotSound; // 发射音效
+    private static int flyingSound; // 小鸟飞行声音
+    private static int collisionSound; // 碰撞声音
+    private static int birdSelectSound; // 选择小鸟声音
+    private static int pigDieSound; // 猪死亡音效
     private static int defeatSound; // 失败音效
     private static int victorySound; // 胜利音效
 
-    private static int slingshotStream;
+    private static int strechStream;
 
     /**
      * 初始化
@@ -44,8 +48,12 @@ public class BGM {
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
         touchDownSound= soundPool.load(context, R.raw.touch_down, 1);
         touchUpSound = soundPool.load(context, R.raw.touch_up, 1);
-        slingshotSound = soundPool.load(context, R.raw.slingshot, 1);
+        strechSound = soundPool.load(context, R.raw.strech, 1);
         shotSound = soundPool.load(context, R.raw.shot, 1);
+        birdSelectSound = soundPool.load(context, R.raw.bird_select, 1);
+        collisionSound = soundPool.load(context, R.raw.collision, 1);
+        flyingSound = soundPool.load(context, R.raw.flying, 1);
+        pigDieSound = soundPool.load(context, R.raw.pig_die, 1);
         defeatSound = soundPool.load(context, R.raw.defeat, 1);
         victorySound = soundPool.load(context, R.raw.victory, 1);
 
@@ -96,20 +104,20 @@ public class BGM {
     /**
      * 播放拉弹弓音效
      */
-    public static void playSlingshot(){
+    public static void playStrech(){
         if(status == PLAYER_PLAY) {
             Log.v("soundPool", "slingshot");
-            slingshotStream = soundPool.play(slingshotSound, 1, 1, 1, -1, 1);
+            strechStream = soundPool.play(strechSound, 1, 1, 1, 0, 1);
         }
     }
 
     /**
      * 停止播放拉弹弓音效
      */
-    public static void stopSlingshot(){
-        if(slingshotStream > 0){
+    public static void stopStrech(){
+        if(strechStream > 0){
             Log.v("soundPool", "slingshot stop");
-            soundPool.stop(slingshotStream);
+            soundPool.stop(strechStream);
         }
     }
 
@@ -137,6 +145,42 @@ public class BGM {
     public static void playVictory(){
         if(status == PLAYER_PLAY) {
             soundPool.play(victorySound, 1, 1, 1, 0, 1);
+        }
+    }
+
+    /**
+     * 播放选择小鸟音效
+     */
+    public static void playBirdSelect(){
+        if(status == PLAYER_PLAY) {
+            soundPool.play(birdSelectSound, 1, 1, 1, 0, 1);
+        }
+    }
+
+    /**
+     * 播放小鸟飞行音效
+     */
+    public static void playFlying(){
+        if(status == PLAYER_PLAY) {
+            soundPool.play(flyingSound, 1, 1, 1, 0, 1);
+        }
+    }
+
+    /**
+     * 播放碰撞音效
+     */
+    public static void playCollision(){
+        if(status == PLAYER_PLAY) {
+            soundPool.play(collisionSound, 1, 1, 1, 0, 1);
+        }
+    }
+
+    /**
+     * 播放猪死亡音效
+     */
+    public static void playPigDie(){
+        if(status == PLAYER_PLAY) {
+            soundPool.play(pigDieSound, 1, 1, 1, 0, 1);
         }
     }
 

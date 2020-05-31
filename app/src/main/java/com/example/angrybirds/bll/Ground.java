@@ -31,6 +31,7 @@ public class Ground extends BasicBody {
 
         setPosition(new Vec2((x)/RATE, (y)/RATE) );
         characterfixdef.density = 0f;
+        characterfixdef.filter.groupIndex = 1; //设置碰撞的分组
         characterdef.type = BodyType.STATIC;
         Body ground = world.createBody(characterdef);
         ground.m_userData = this;

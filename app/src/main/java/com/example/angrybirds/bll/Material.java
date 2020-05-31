@@ -15,16 +15,18 @@ class Material extends BasicBody {
     public enum Kind{
         ICE, WOOD, STONE;
     }
-
+    private Kind myKind;
+    // new Add
     Material(float x, float y, float ang, Context context, Kind kind, boolean vertical) {
         super(x, y, ang);
+        myKind = kind;
         if (vertical){
             switch(kind){
                 case ICE:
                     ico = BitmapFactory.decodeResource(context.getResources(), R.drawable.ice_t);
                     break;
                 case WOOD:
-                    ico = BitmapFactory.decodeResource(context.getResources(),R.drawable.wood_t);
+                    ico = BitmapFactory.decodeResource(context.getResources(),R.drawable.wood_t1);
                     break;
                 case STONE:
                     ico = BitmapFactory.decodeResource(context.getResources(), R.drawable.stone_t);
@@ -40,12 +42,30 @@ class Material extends BasicBody {
                     ico = BitmapFactory.decodeResource(context.getResources(), R.drawable.wood);
                     break;
                 case STONE:
-                    ico = BitmapFactory.decodeResource(context.getResources(), R.drawable.stone);
+                    ico = BitmapFactory.decodeResource(context.getResources(), R.drawable.stone1);
                     break;
                 default:
                     break;
             }
         }
+
+        switch (kind){
+            case ICE:
+                characterfixdef.density = 0.01f;
+                characterfixdef.friction = 0.7f;
+                break;
+            case WOOD:
+                characterfixdef.density = 0.02f;
+                characterfixdef.friction = 0.7f;
+                break;
+            case STONE:
+                characterfixdef.density = 0.07f;
+                characterfixdef.friction = 0.7f;
+                break;
+            default:
+                break;
+        }
+
 
         this.y -= this.getHeight()/2;
 
@@ -63,8 +83,8 @@ class Material extends BasicBody {
         polShape.setAsBox(w/2/RATE, h/2/RATE);
 
         characterfixdef.shape = polShape;
-        characterfixdef.density = 0.01f;
-
+        characterfixdef.restitution = 0.01f;
+        characterfixdef.filter.groupIndex = 1;//设置分组
         setPosition(new Vec2((x)/RATE, (y)/RATE) );
 
         while(this.body == null){
@@ -74,7 +94,9 @@ class Material extends BasicBody {
         body.m_userData = this; //在body中保存材料
         return;
     }
-
+    public Kind getMyKind(){
+        return myKind;
+    }
     /**
      * 碰撞动作
      */

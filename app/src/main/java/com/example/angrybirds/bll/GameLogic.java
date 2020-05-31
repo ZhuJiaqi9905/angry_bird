@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.example.angrybirds.music.BGM;
 import com.example.angrybirds.ui.UiInterface;
 
 import org.jbox2d.callbacks.ContactImpulse;
@@ -47,6 +48,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     private volatile ArrayList<Pigs> pigGroup;
     private volatile ArrayList<Material> materialGroup;
 
+    private volatile ArrayList<Bird> curCreateBirdGroup; //蓝鸟点击屏幕会出现新的蓝鸟。用这个容器装
     private ArrayList<Body> bodyToBeDestroyed;//要被销毁的body刚体
 
 
@@ -72,10 +74,13 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     //大地
     Ground ground;
 
-    private final static float DIEDSPEED = 10;
-
+    private final static float PIG_DIE_SPEED = 4f;
+    private final static float MATERIAL_DIE_SPEED = 3f;
     //不同等级的布局
     LevelLayout levelLayout;
+
+    //点击屏幕触发小鸟额外技能
+    private boolean isClicked = false;
 
     public GameLogic(Context context, int level, UiInterface ui) {
         Log.d(TAG, "GameLogic: create");
@@ -108,10 +113,11 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         gBody = ground.createGroundBody(world, RATE);
 
         //创建布局和世界
-        birdGroup = new ArrayList<Bird>(5);
-        pigGroup = new ArrayList<Pigs>(5);
-        materialGroup = new ArrayList<Material>(10);
-        bodyToBeDestroyed = new ArrayList<Body>(10);
+        birdGroup = new ArrayList<Bird>();
+        pigGroup = new ArrayList<Pigs>();
+        materialGroup = new ArrayList<Material>();
+        bodyToBeDestroyed = new ArrayList<Body>();
+        curCreateBirdGroup = new ArrayList<Bird>();
 
         levelLayout = new LevelLayout(birdGroup,pigGroup,materialGroup,ui,context, world);
         //对第level关进行布局。建立鸟，猪，材料等
@@ -122,6 +128,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         curBirdIndex = 0;
         newTurn(curBirdIndex);
         startSimulate = true;
+        isClicked = false;
     }
 
 
@@ -129,12 +136,10 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     // 点击屏幕时候小鸟动作
     @Override
     public void clickPerformed(float x, float y) {
-        if(status == GAME_FLYING) {
-            Vec2 v = curBird.body.getLinearVelocity();
-            Vec2 new_v =new Vec2(2* v.x, -2* v.y);
-            System.out.println("Velocity: " + v);
-            curBird.ang += 90;
-            curBird.body.setLinearVelocity(new_v);
+
+        if(status == GAME_FLYING && isClicked == false) {
+            curBird.doClickAction(curCreateBirdGroup,ui, context, world);
+            isClicked = true;
         }
     }
 
@@ -152,8 +157,9 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         this.curBird.y = body.y;
         //把bird和刚体联系起来
         curBird.createBirdBody(world, RATE);
-        curBird.body.applyForce(new Vec2(dx, dy), curBird.body.getWorldCenter());
+        curBird.body.applyForce(new Vec2(dx * 5f, dy * 5f) , curBird.body.getWorldCenter());  // new Add
         startSimulate = true;
+        isClicked = false;
     }
 
     @Override
@@ -165,12 +171,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
                 simulateWorld();
                 // 猪群
                 Pigs pig;
-                //                if(pigGroup == null || materialGroup == null || curBird == null){
-                //                    Log.d("in run ", "pigGroup is null");
-                //                    Log.d("in run", "materialGroup is null");
-                //                    Log.d("in run", "curBird is null");
-                //                    return;
-                //                }
+
                 if(pigGroup != null){
                     for (int i = 0; i < pigGroup.size(); i++) {
                         pig = pigGroup.get(i);
@@ -187,7 +188,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
                     for (int i = 0; i < materialGroup.size(); i++) {
                         material = materialGroup.get(i);
                         if(material != null && material.alive){
-                            Log.d("in run", "update material");
+
                             material.updatePosition();//根据物理世界的模拟，同步材料的位置
                         }
                     }
@@ -197,11 +198,24 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
                 if(status == GAME_FLYING && curBird != null){
                     Log.d("in run", "update bird");
                     curBird.updatePosition();//根据物理世界的模拟，同步小鸟的位置
+
+                    //新加的.如果新生成了蓝色的鸟
+                    if(curBird.getMyKind() == Bird.Kind.BLUE && isClicked == true){
+                        Bird blueBird;
+                        for(int i = 0; i < curCreateBirdGroup.size(); i++){
+                            blueBird = curCreateBirdGroup.get(i);
+                            if(blueBird != null && blueBird.alive){
+                                blueBird.updatePosition();
+                            }
+                        }
+                    }
+                    //新加的部分结束
+
                     check();
                 }
 
                 try{
-                    Thread.sleep(10);
+                    Thread.sleep(13);
                 }catch(InterruptedException e){
                     e.printStackTrace();
                 }
@@ -223,12 +237,19 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
      */
     private void check(){
 
+        //先判断通过点击新产生的蓝鸟中，有没有已经死掉的
+        if(curCreateBirdGroup == null) return;
+        for(Bird blueBird: curCreateBirdGroup){
+            if(blueBird.x > ui.getScreenW() || blueBird.y < 0 || blueBird.x < 0 || blueBird.isStopped(0.05f)){
+                blueBird.alive = false;
+                blueBird.body.setActive(false);
+                bodyToBeDestroyed.add(blueBird.body);
+            }
+        }
+        //判断弹弓上的鸟有没有死掉
         if(curBird == null || curBird.body == null)
             return;
-
-        Vec2 v = curBird.body.getLinearVelocity();
-        // boolean isStop =  v.x * v.x + v.y * v.y < 1;
-        if(curBird.x > ui.getScreenW() || curBird.y < 0 || curBird.x < 0 || curBird.isStopped(0.1f)){
+        if(curBird.x > ui.getScreenW() || curBird.y < 0 || curBird.x < 0 || curBird.isStopped(0.05f)){
             curBird.alive = false;
             curBird.body.setActive(false);
             bodyToBeDestroyed.add(curBird.body);
@@ -259,6 +280,16 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
                 status = GAME_OVER;
             }
             else{ // 新鸟上弓箭
+                //判断上一局是否有新创建的蓝鸟未被清理
+                for(Bird blueBird: curCreateBirdGroup){
+                    if(blueBird.alive == true){
+                        blueBird.alive = false;
+                        blueBird.body.setActive(false);
+                        bodyToBeDestroyed.add(blueBird.body);
+                    }
+
+                }
+                curCreateBirdGroup.clear();
                 newTurn(curBirdIndex);
             }
         }
@@ -270,6 +301,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         curBird = birdGroup.get(index);
         ui.putOnSlingshot(curBird, this); // 上弓箭
         status = GAME_READY;
+
     }
 
     @Override
@@ -316,29 +348,49 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         Body bodyA = fixtureA.getBody();
         Body bodyB = fixtureB.getBody();
         boolean pigIsDie = false;
-        Body bodyPig = null;
+        boolean materialIsDie = false;
+        Body diedPigBody = null;
+        Body diedMaterialBody = null;
+        //判断碰撞是否会把猪打死
         if(bodyA.m_userData instanceof Pigs && !(bodyB.m_userData instanceof Pigs)){
             //如果bodyA是一个猪，bodyB不是猪
             pigIsDie = judgePigDie(bodyA, bodyB);
-            bodyPig = bodyA;
+            diedPigBody = bodyA;
         }
         else if(bodyB.m_userData instanceof Pigs && !(bodyA.m_userData instanceof Pigs)){
             pigIsDie = judgePigDie(bodyB, bodyA);
-            bodyPig = bodyB;
+            diedPigBody = bodyB;
+        }
+        //判断鸟和材料的碰撞，是否会击穿材料
+        else if(bodyA.m_userData instanceof Bird && bodyB.m_userData instanceof Material){
+            materialIsDie = judgeMaterialDie(bodyA, bodyB);
+            diedMaterialBody = bodyB;
+        }
+        else if(bodyA.m_userData instanceof Material && bodyB.m_userData instanceof Bird){
+            materialIsDie = judgeMaterialDie(bodyB, bodyA);
+            diedMaterialBody = bodyA;
+
         }
         else{
             return;
         }
-        if(pigIsDie && bodyPig != null){
-            Pigs pig = (Pigs)bodyPig.m_userData;
+        if(pigIsDie && diedPigBody != null){//如果猪死了
+            BGM.playPigDie();
+            Pigs pig = (Pigs)diedPigBody.m_userData;
             pig.alive = false;
 
-            bodyPig.setActive(false);
-            world.destroyBody(bodyPig);
-            bodyToBeDestroyed.add(bodyPig);
-
+            diedPigBody.setActive(false);
+            world.destroyBody(diedPigBody);
+            bodyToBeDestroyed.add(diedPigBody);
         }
-
+        if(materialIsDie && diedMaterialBody != null){//如果材料被击穿了
+            BGM.playCollision();
+            Material material = (Material) diedMaterialBody.m_userData;
+            material.alive = false;
+            diedMaterialBody.setActive(false);
+            world.destroyBody(diedMaterialBody);
+            bodyToBeDestroyed.add(diedMaterialBody);
+        }
     }
 
     @Override
@@ -357,16 +409,38 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
      * 判断猪和其它物体碰撞时是否死亡
      * @param pigBody 猪的刚体
      * @param otherBody 其它刚体
-     * @return
+     * @return 猪是否死亡
      */
     private boolean judgePigDie(Body pigBody, Body otherBody){
         Vec2 pigVel = pigBody.getLinearVelocity();
         Vec2 otherVel = otherBody.getLinearVelocity();
         Vec2 relativeVel = pigVel.sub(otherVel);//计算相对速度
-        Log.v("rel speed", " " + relativeVel.length());
+
         //如果相对速度大于死亡速度,就死了
-        return relativeVel.length() > DIEDSPEED;
+        return relativeVel.length() > PIG_DIE_SPEED;
     }
 
+    /**
+     * 判断猪和其它物体碰撞时是否死亡
+     * @param birdBody 鸟的刚体
+     * @param materialBody 材料刚体
+     * @return 材料是否被击穿
+     */
+    private boolean judgeMaterialDie(Body birdBody, Body materialBody){
+        //石头是无法被击穿的
+        Material mBody = (Material) materialBody.m_userData;
+        if(mBody.getMyKind() == Material.Kind.STONE){
+            return false;
+        }
+       //木头和冰可以被击穿
+        Vec2 birdVel = birdBody.getLinearVelocity();
+        Vec2 materialVel = materialBody.getLinearVelocity();
+        Vec2 relativeVel = birdVel.sub(materialVel);//计算相对速度
+        //小鸟和木头等碰撞完，会减速
+        Vec2 newVel = birdVel.mul(0.75f);
+        birdBody.setLinearVelocity(newVel);
+
+        return relativeVel.length() > MATERIAL_DIE_SPEED;
+    }
 }
 

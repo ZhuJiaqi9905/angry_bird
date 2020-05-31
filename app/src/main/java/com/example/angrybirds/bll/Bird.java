@@ -1,24 +1,41 @@
 package com.example.angrybirds.bll;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.Contacts;
 import android.util.Log;
 
 import com.example.angrybirds.R;
+import com.example.angrybirds.ui.UiInterface;
 
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.BodyDef;
-import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 class Bird extends BasicBody {
     public enum Kind{
-        BLUE, YELLOW, WHITE, RED
-    }
+        BLUE, YELLOW, WHITE, RED;
+        private static final List<Kind> VALUES =
+                Collections.unmodifiableList(Arrays.asList(values()));
+        private static final int SIZE = VALUES.size();
+        private static final Random RANDOM = new Random();
 
+        public static Kind randomLetter()  {
+            return VALUES.get(RANDOM.nextInt(SIZE));
+        }
+
+    }
+    private Kind myKind;
+
+
+    static final float factor = 3;
+    private final static float RATE = 30; //物理世界和像素转换比例
     /**
      * 产生一个物体
      *
@@ -26,10 +43,10 @@ class Bird extends BasicBody {
      * @param y   中心点纵坐标
      * @param ang 旋转角度
      */
-    public Bird(float x, float y, float ang,  Kind kind, Context context) {
+    Bird(float x, float y, float ang, Kind kind, Context context) {
 
         super(x, y, ang);
-
+        myKind = kind;
         // 根据类型设置不同小鸟属性
         switch (kind){
             case BLUE:
@@ -52,15 +69,23 @@ class Bird extends BasicBody {
             default:
                 break;
         }
+        this.characterfixdef.density *= factor;  // 整体调整质量的因子，优化游戏体验 new Add
         this.y -=  this.getHeight() / 2;
 
     }
 
+    // 随机创建小鸟
+    // new Add
+    static Bird createRandomBird(float x, float y, float ang, Context context){
+        Kind randomKind = Kind.randomLetter();
+        return new Bird(x, y, ang, randomKind, context);
+    }
 
-    public synchronized void createBirdBody(World world, float RATE){
+
+    synchronized void createBirdBody(World world, float RATE){
         float w = getWidth() ;
         float h = getHeight();
-        Log.d("Bird", "height"  + this.getHeight() + "width " + this.getWidth());
+        //Log.d("Bird", "height"  + this.getHeight() + "width " + this.getWidth());
 
         PolygonShape polShape = new PolygonShape();//形状是矩形
         polShape.setAsBox(w/2/RATE, h/2/RATE);
@@ -94,4 +119,81 @@ class Bird extends BasicBody {
     }
 
 
+    /**
+     *
+     * @param birdGroup 存放新产生蓝鸟的容器
+     * @param ui ui界面
+     * @param context 环境
+     * @param world 物理世界
+     */
+    void doClickAction(ArrayList<Bird> birdGroup, UiInterface ui, Context context, World world){
+        switch(myKind){
+            case RED:
+                actByRedBird();
+                break;
+            case WHITE:
+                actByWhiteBird();
+                break;
+            case YELLOW:
+                actByYellowBird();
+                break;
+            case BLUE:
+                actByBlueBird(birdGroup, ui, context, world);
+                break;
+        }
+
+
+    }
+
+    /**
+     * 红鸟点击屏幕的动作。实际上什么都不做
+     */
+    private void actByRedBird(){
+    };
+
+    /** 黄鸟点击屏幕的动作。在原方向上速度加倍，进行冲击。
+    *
+     */
+    private void actByYellowBird(){
+        Vec2 v = this.body.getLinearVelocity();
+        Vec2 new_v =new Vec2(2* v.x, 2* v.y);
+        this.body.setLinearVelocity(new_v);
+    }
+
+    /**
+     *蓝鸟点击屏幕时，会分身新的蓝鸟
+     * @param birdGroup 存放新生成的鸟的容器
+     * @param ui ui界面
+     * @param context 环境
+     * @param world 物理世界
+     */
+    private void actByBlueBird(ArrayList<Bird> birdGroup, UiInterface ui, Context context, World world){
+        Vec2 curVel = this.body.getLinearVelocity();
+        Vec2 upVel = new Vec2(1.5f * curVel.x, curVel.y);
+        Vec2 downVel = new Vec2(curVel.x, 1.5f * curVel.y);
+        //创建两个新的鸟
+        Bird upBird = new Bird(this.x, this.y, 0, Kind.BLUE, context);
+        ui.addBody(upBird);
+        Bird downBird = new Bird(this.x, this.y, 0, Kind.BLUE, context);
+        ui.addBody(downBird);
+
+        upBird.createBirdBody(world, RATE);
+        downBird.createBirdBody(world, RATE);
+        upBird.body.setLinearVelocity(upVel);
+        downBird.body.setLinearVelocity(downVel);
+        birdGroup.add(upBird);
+        birdGroup.add(downBird);
+    }
+
+    /**
+     * 白鸟点击屏幕时，会垂直下落
+     */
+    private void actByWhiteBird(){
+        Vec2 v = this.body.getLinearVelocity();
+        Vec2 new_v =new Vec2(0, -3* v.y);
+        this.body.setLinearVelocity(new_v);
+    }
+    public Kind getMyKind(){
+        return myKind;
+    }
 }

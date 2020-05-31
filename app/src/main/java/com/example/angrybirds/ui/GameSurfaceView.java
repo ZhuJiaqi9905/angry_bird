@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
         UiInterface, Runnable, View.OnTouchListener {
-    public static final int FPS = 30; // 画面刷新帧率
+    public static final int FPS = 60; // 画面刷新帧率
 
     public static final int GAME_NOT_READY = 0; // surface view 尚未创建
     public static final int GAME_READY = 1; // surface view 创建完毕
@@ -176,6 +176,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
         body.x = slingshotW;
         body.y = slingshotH;
         shotListener = listener;
+        BGM.playBirdSelect();
     }
 
     @Override
@@ -276,7 +277,7 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             // 开始拖动小鸟
             if(shotBody != null && shotBody.pointIn(x, y)) {
                 focusOnShot = true;
-                BGM.playSlingshot();
+                BGM.playStrech();
             }
         }
         if(event.getAction() == MotionEvent.ACTION_MOVE){
@@ -297,7 +298,8 @@ public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callba
             // 发射小鸟
             if(focusOnShot && shotBody != null){
                 BGM.playBirdShot();
-                BGM.stopSlingshot();
+                BGM.stopStrech();
+                BGM.playFlying();
                 if(shotListener != null){
                     shotListener.shotPerformed(shotBody, slingshotW, slingshotH);
                 }
