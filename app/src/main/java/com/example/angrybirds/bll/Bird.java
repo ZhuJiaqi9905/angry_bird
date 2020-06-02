@@ -169,8 +169,10 @@ class Bird extends BasicBody {
      */
     private void actByBlueBird(ArrayList<Bird> birdGroup, UiInterface ui, Context context, World world){
         Vec2 curVel = this.body.getLinearVelocity();
-        Vec2 upVel = new Vec2(1.5f * curVel.x, curVel.y);
-        Vec2 downVel = new Vec2(curVel.x, 1.5f * curVel.y);
+        //Vec2 upVel = new Vec2(1.5f * curVel.x, curVel.y);
+        //Vec2 downVel = new Vec2(curVel.x, 1.5f * curVel.y);
+        Vec2 upVel = new Vec2(0.866f*curVel.x-0.5f*curVel.y, 0.5f*curVel.x+0.866f*curVel.y);
+        Vec2 downVel = new Vec2(0.866f*curVel.x+0.5f*curVel.y, -0.5f*curVel.x+0.866f*curVel.y);
         //创建两个新的鸟
         Bird upBird = new Bird(this.x, this.y, 0, Kind.BLUE, context);
         ui.addBody(upBird);
@@ -190,7 +192,7 @@ class Bird extends BasicBody {
      */
     private void actByWhiteBird(){
         Vec2 v = this.body.getLinearVelocity();
-        Vec2 new_v =new Vec2(0, -3* v.y);
+        Vec2 new_v =new Vec2(0, 3 * v.length());
         this.body.setLinearVelocity(new_v);
     }
     public Kind getMyKind(){
