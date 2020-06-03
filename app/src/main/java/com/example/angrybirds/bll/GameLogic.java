@@ -1,8 +1,6 @@
 package com.example.angrybirds.bll;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.example.angrybirds.music.BGM;
@@ -12,13 +10,9 @@ import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.AABB;
 import org.jbox2d.collision.Manifold;
-import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.BodyDef;
-import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.Fixture;
-import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.Contact;
 
@@ -37,15 +31,15 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     private static final int GAME_FLYING = 1; // 小鸟正在飞翔
     private static final int GAME_OVER = 2; // 结束了
     private int status; // 状态
-    private boolean startSimulate = true;
+    private boolean startSimulate = true;  //物理世界模拟
 
     private Context context;
     private UiInterface ui;
-    private int level;
+    private int level; //关卡
 
     //鸟，猪，材料的容器
     private volatile ArrayList<Bird> birdGroup;
-    private volatile ArrayList<Pigs> pigGroup;
+    private volatile ArrayList<Pig> pigGroup;
     private volatile ArrayList<Material> materialGroup;
 
     private volatile ArrayList<Bird> curCreateBirdGroup; //蓝鸟点击屏幕会出现新的蓝鸟。用这个容器装
@@ -69,8 +63,6 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
     private int velocityIteration = 10; //物理世界刷新的迭代值
     private int positionIteration = 10;
 
-
-    private Body gBody;
     //大地
     Ground ground;
 
@@ -98,7 +90,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
 
     private void init() {
         startSimulate = false;
-        Log.d("init", "init create");
+
         //创建物理世界的部分
         gravity = new Vec2(0, 10);
         world = new World(gravity, false);
@@ -110,11 +102,11 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
 
         // 大地刚体创建
         ground = new Ground(0, (ui.getScreenH() + ui.getGroundY())/2, ui.getScreenW() , ui.getScreenH()- ui.getGroundY(), context);
-        gBody = ground.createGroundBody(world, RATE);
+        ground.createGroundBody(world, RATE);
 
         //创建布局和世界
         birdGroup = new ArrayList<Bird>();
-        pigGroup = new ArrayList<Pigs>();
+        pigGroup = new ArrayList<Pig>();
         materialGroup = new ArrayList<Material>();
         bodyToBeDestroyed = new ArrayList<Body>();
         curCreateBirdGroup = new ArrayList<Bird>();
@@ -133,7 +125,13 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
 
 
 
-    // 点击屏幕时候小鸟动作
+
+
+    /**
+     * 点击屏幕时候小鸟动作
+     * @param x x坐标
+     * @param y y坐标
+     */
     @Override
     public void clickPerformed(float x, float y) {
 
@@ -143,12 +141,17 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         }
     }
 
-    @Override
+
     /**
      * 准备发射
+     * body 小鸟
+     * x 鼠标的位置x
+     * y 鼠标的位置y
      */
+    @Override
     public synchronized void shotPerformed(BasicBody body, float x, float y) {
         startSimulate = false;
+        //得到发射的方向
         dx = x - body.x;
         dy = y - body.y;
         status = GAME_FLYING;
@@ -162,21 +165,21 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         isClicked = false;
     }
 
+    /**
+     * 游戏过程中不断进行物体位置更新，渲染等
+     */
     @Override
     public void run() {
 
         while (flag){
             if(status != GAME_OVER && startSimulate){
-                Log.d("run", "in run");
-                simulateWorld();
+                simulateWorld();//模拟物理世界
                 // 猪群
-                Pigs pig;
-
+                Pig pig;
                 if(pigGroup != null){
                     for (int i = 0; i < pigGroup.size(); i++) {
                         pig = pigGroup.get(i);
                         if(pig != null && pig.alive){
-                            Log.d("in run", "update pig");
                             pig.updatePosition(); //根据物理世界的模拟，同步猪的位置
                         }
                     }
@@ -188,18 +191,14 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
                     for (int i = 0; i < materialGroup.size(); i++) {
                         material = materialGroup.get(i);
                         if(material != null && material.alive){
-
                             material.updatePosition();//根据物理世界的模拟，同步材料的位置
                         }
                     }
                 }
-
                 //小鸟
                 if(status == GAME_FLYING && curBird != null){
-                    Log.d("in run", "update bird");
                     curBird.updatePosition();//根据物理世界的模拟，同步小鸟的位置
-
-                    //新加的.如果新生成了蓝色的鸟
+                    //如果新生成了蓝色的鸟
                     if(curBird.getMyKind() == Bird.Kind.BLUE && isClicked == true){
                         Bird blueBird;
                         for(int i = 0; i < curCreateBirdGroup.size(); i++){
@@ -209,11 +208,9 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
                             }
                         }
                     }
-                    //新加的部分结束
-
+                    //检查游戏状态
                     check();
                 }
-
                 try{
                     Thread.sleep(13);
                 }catch(InterruptedException e){
@@ -232,8 +229,10 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         }
     }
 
+
     /**
-     * 检查小鸟是否越界
+     * 检查游戏状态
+     * 即检查小鸟是否越界（死亡）
      */
     private void check(){
 
@@ -259,9 +258,14 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
 
     }
 
+    /**
+     * 检查游戏是否结束。
+     * 如果游戏结束，根据胜利或失败显示相应文字
+     * 如果没结束，在弹弓上加入新的鸟
+     */
     void checkGame(){
         boolean pigAlive = false, birdAlive = false;
-        for(Pigs curPig : pigGroup){
+        for(Pig curPig : pigGroup){
             if (curPig.alive) {
                 pigAlive = true;
                 break;
@@ -269,7 +273,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         }
         if(!pigAlive) { // 游戏胜利
             ui.gameOver(true);
-            Log.d("game win", "in game win");
+
             status = GAME_OVER;
         }
         else{
@@ -295,7 +299,10 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         }
     }
 
-    // 新的小鸟上弓
+    /**
+     * 新的一轮，把新的鸟放到弹弓上
+     * @param index 要放到弹弓上的鸟的编号
+     */
     synchronized void newTurn(int index){
 
         curBird = birdGroup.get(index);
@@ -325,6 +332,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         new Thread(this).start();
     }
 
+
     /**
      * 让jbox物理世界进行模拟
      */
@@ -336,13 +344,12 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         catch (Exception e){
             e.printStackTrace();
         }
-
-
     }
 
     // 碰撞监听接口函数
     @Override
     public void beginContact(Contact contact) {
+        //先得到两个碰撞对象的刚体
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
         Body bodyA = fixtureA.getBody();
@@ -352,12 +359,12 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         Body diedPigBody = null;
         Body diedMaterialBody = null;
         //判断碰撞是否会把猪打死
-        if(bodyA.m_userData instanceof Pigs && !(bodyB.m_userData instanceof Pigs)){
+        if(bodyA.m_userData instanceof Pig && !(bodyB.m_userData instanceof Pig)){
             //如果bodyA是一个猪，bodyB不是猪
             pigIsDie = judgePigDie(bodyA, bodyB);
             diedPigBody = bodyA;
         }
-        else if(bodyB.m_userData instanceof Pigs && !(bodyA.m_userData instanceof Pigs)){
+        else if(bodyB.m_userData instanceof Pig && !(bodyA.m_userData instanceof Pig)){
             pigIsDie = judgePigDie(bodyB, bodyA);
             diedPigBody = bodyB;
         }
@@ -376,7 +383,7 @@ public class GameLogic implements ShotListener, ClickListener, Runnable, Contact
         }
         if(pigIsDie && diedPigBody != null){//如果猪死了
             BGM.playPigDie();
-            Pigs pig = (Pigs)diedPigBody.m_userData;
+            Pig pig = (Pig)diedPigBody.m_userData;
             pig.alive = false;
 
             diedPigBody.setActive(false);

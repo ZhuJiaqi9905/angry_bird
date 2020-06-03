@@ -10,7 +10,7 @@ import com.example.angrybirds.R;
 
 /**
  * 播放背景音乐和音效
- * @author ZhengMinghang
+ *
  */
 public class BGM {
     public static final int PLAYER_PAUSE = 0; // 关闭音乐

@@ -6,7 +6,6 @@ import com.example.angrybirds.ui.UiInterface;
 
 import org.jbox2d.dynamics.World;
 
-import java.security.Key;
 import java.util.ArrayList;
 
 public class LevelLayout {
@@ -15,13 +14,13 @@ public class LevelLayout {
      *
      */
     private volatile ArrayList<Bird> birdList;
-    private volatile ArrayList<Pigs> pigList;
+    private volatile ArrayList<Pig> pigList;
     private volatile ArrayList<Material> materialList;
     private UiInterface ui;
     private Context context;
     private World world;
     private final static float RATE = 30; //物理世界和像素转换比例
-    public LevelLayout(ArrayList<Bird> birdGroup, ArrayList<Pigs> pigGroup,
+    public LevelLayout(ArrayList<Bird> birdGroup, ArrayList<Pig> pigGroup,
                        ArrayList<Material> materialGroup, UiInterface ui,
                        Context context, World world){
         this.birdList = birdGroup;
@@ -32,6 +31,10 @@ public class LevelLayout {
         this.world = world;
     }
 
+    /**
+     * 创建不同等级的布局
+     * @param level 等级
+     */
     public void createLevel(int level){
         switch(level){
             case 1:
@@ -55,9 +58,16 @@ public class LevelLayout {
             curY = y;
         }
     }
-    // @para: curPosition: 光标所处的位置
-    // @para: changeX : 是否移到光标的x位置
-    // @para: changeY : 是否移动光标的y位置
+
+
+    /**
+     * 创建一个类似盒子的布局。可以作为一种基本布局
+     * @param curPosition 光标所处的位置
+     * @param changeX 是否移到光标的x位置
+     * @param changeY 是否移动光标的y位置
+     * @param hasPig 是否有猪
+     * @param materKind 材料的种类
+     */
     public void createBox(position curPosition,boolean changeX, boolean changeY, boolean hasPig, Material.Kind materKind){
         float x = curPosition.curX;
         float y = curPosition.curY;
@@ -81,7 +91,7 @@ public class LevelLayout {
 
         x = (wood1.x + wood2.x)/2f;
         if(hasPig){
-            Pigs pig = new Pigs(x, y, 0, 1, context); // -wood1.getHeight()-stone1.getHeight()
+            Pig pig = new Pig(x, y, 0, 1, context); // -wood1.getHeight()-stone1.getHeight()
             pig.createPigBody(world, RATE);
             pigList.add(pig);
             ui.addBody(pig);
@@ -90,6 +100,13 @@ public class LevelLayout {
         if(changeX) curPosition.curX += stone1.getWidth() + 1.2 * wood1.getWidth();
     }
 
+    /**
+     * 创建一个高墙。可作为一种基本布局
+     @param curPosition 光标所处的位置
+     @param changeX 是否移到光标的x位置
+     @param changeY 是否移动光标的y位置
+     @param materKind 材料的种类
+     */
     public void createWall(position curPosition,boolean changeX, boolean changeY, Material.Kind materKind){
         float x = curPosition.curX;
         float y = curPosition.curY;
@@ -109,6 +126,14 @@ public class LevelLayout {
         if(changeY) curPosition.curY -= thing.getHeight();
         if(changeX) curPosition.curX += 3.1 *thing.getWidth();
     }
+
+    /**
+     * 创建一种横着的阻拦。可作为一种基本布局
+     * @param curPosition 光标位置
+     * @param changeX 是否移到x位置
+     * @param changeY 是否移到y位置
+     * @param materKind 材料的种类
+     */
     public void createBand(position curPosition,boolean changeX, boolean changeY, Material.Kind materKind){
         float x = curPosition.curX;
         float y = curPosition.curY;
@@ -168,7 +193,7 @@ public class LevelLayout {
         createWall(curPosition,true,false, Material.Kind.STONE);
         curPosition.curY = ui.getGroundY();
 
-        Pigs pig = new Pigs(x + stone1.getWidth() / 2, y, 0, 1, context);
+        Pig pig = new Pig(x + stone1.getWidth() / 2, y, 0, 1, context);
         pig.createPigBody(world, RATE);
         pigList.add(pig);
         ui.addBody(pig);

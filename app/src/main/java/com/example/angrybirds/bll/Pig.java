@@ -13,15 +13,17 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
-class Pigs extends BasicBody {
+class Pig extends BasicBody {
     /**
-     * 产生一个物体
+     * 产生一个猪
      *
      * @param x   中心点横坐标
      * @param y   中心点纵坐标
      * @param ang 旋转角度
+     * @param size 尺寸比例
+     * @param context 环境
      */
-    Pigs(float x, float y, float ang, float size, Context context) {
+    Pig(float x, float y, float ang, float size, Context context) {
         super(x, y, ang, size);
         ico = BitmapFactory.decodeResource(context.getResources(), R.drawable.pigs);
         this.y -=  this.getHeight() / 2;
@@ -29,6 +31,11 @@ class Pigs extends BasicBody {
     }
 
 
+    /**
+     * 创建猪的刚体
+     * @param world 物理世界
+     * @param RATE 物理世界与手机屏幕的比例
+     */
     public synchronized void createPigBody(World world, float RATE){
         float w = getWidth() ;
         float h = getHeight();

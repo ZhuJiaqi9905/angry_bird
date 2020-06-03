@@ -26,7 +26,6 @@ import java.util.List;
 
 /**
  * 动态显示游戏内容
- * @author ZhengMinghang
  */
 public class GameSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
         UiInterface, Runnable, View.OnTouchListener {

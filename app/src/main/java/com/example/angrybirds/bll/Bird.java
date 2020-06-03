@@ -21,15 +21,6 @@ import java.util.Random;
 class Bird extends BasicBody {
     public enum Kind{
         BLUE, YELLOW, WHITE, RED;
-        private static final List<Kind> VALUES =
-                Collections.unmodifiableList(Arrays.asList(values()));
-        private static final int SIZE = VALUES.size();
-        private static final Random RANDOM = new Random();
-
-        public static Kind randomLetter()  {
-            return VALUES.get(RANDOM.nextInt(SIZE));
-        }
-
     }
     private Kind myKind;
 
@@ -37,11 +28,13 @@ class Bird extends BasicBody {
     static final float factor = 3;
     private final static float RATE = 30; //物理世界和像素转换比例
     /**
-     * 产生一个物体
+     * 产生一个小鸟
      *
      * @param x   中心点横坐标
      * @param y   中心点纵坐标
      * @param ang 旋转角度
+     * @param kind 鸟的种类
+     * @param context 环境
      */
     Bird(float x, float y, float ang, Kind kind, Context context) {
 
@@ -74,28 +67,20 @@ class Bird extends BasicBody {
 
     }
 
-    // 随机创建小鸟
-    // new Add
-    static Bird createRandomBird(float x, float y, float ang, Context context){
-        Kind randomKind = Kind.randomLetter();
-        return new Bird(x, y, ang, randomKind, context);
-    }
 
-
+    /**
+     * 创建小鸟刚体
+     * @param world 物理世界
+     * @param RATE 物理世界与像素的转换比例
+     */
     synchronized void createBirdBody(World world, float RATE){
         float w = getWidth() ;
         float h = getHeight();
-        //Log.d("Bird", "height"  + this.getHeight() + "width " + this.getWidth());
-
         PolygonShape polShape = new PolygonShape();//形状是矩形
         polShape.setAsBox(w/2/RATE, h/2/RATE);
-
         characterfixdef.shape = polShape;
         characterfixdef.filter.groupIndex = -1; // 允许碰撞
-
-
         setPosition(new Vec2((x)/RATE, (y)/RATE) );
-
         while (this.body == null) {
             this.body = world.createBody(characterdef); //物理世界创造物体
         }
@@ -106,9 +91,7 @@ class Bird extends BasicBody {
 
 
 
-    public float getDensity() {
-        return this.characterfixdef.density;
-    }
+
 
     /**
      * 碰撞动作
@@ -120,7 +103,7 @@ class Bird extends BasicBody {
 
 
     /**
-     *
+     *点击屏幕时，执行不同鸟的动作
      * @param birdGroup 存放新产生蓝鸟的容器
      * @param ui ui界面
      * @param context 环境
@@ -169,8 +152,6 @@ class Bird extends BasicBody {
      */
     private void actByBlueBird(ArrayList<Bird> birdGroup, UiInterface ui, Context context, World world){
         Vec2 curVel = this.body.getLinearVelocity();
-        //Vec2 upVel = new Vec2(1.5f * curVel.x, curVel.y);
-        //Vec2 downVel = new Vec2(curVel.x, 1.5f * curVel.y);
         Vec2 upVel = new Vec2(0.866f*curVel.x-0.5f*curVel.y, 0.5f*curVel.x+0.866f*curVel.y);
         Vec2 downVel = new Vec2(0.866f*curVel.x+0.5f*curVel.y, -0.5f*curVel.x+0.866f*curVel.y);
         //创建两个新的鸟

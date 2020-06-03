@@ -16,7 +16,7 @@ class Material extends BasicBody {
         ICE, WOOD, STONE;
     }
     private Kind myKind;
-    // new Add
+
     Material(float x, float y, float ang, Context context, Kind kind, boolean vertical) {
         super(x, y, ang);
         myKind = kind;
@@ -72,6 +72,11 @@ class Material extends BasicBody {
     }
 
 
+    /**
+     * 创建材料刚体
+     * @param world 物理世界
+     * @param RATE 比例
+     */
     public synchronized void createMaterialBody(World world, float RATE){
         float w = getWidth();
         float h = getHeight();
